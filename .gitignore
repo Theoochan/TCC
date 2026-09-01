@@ -1,0 +1,12 @@
+# Tem a senha do banco
+/incluir/config.php
+
+# Imagens enviadas pelo admin
+/publico/uploads/*
+!/publico/uploads/.gitkeep
+
+.DS_Store
+Thumbs.db
+
+/.idea
+/.vscode

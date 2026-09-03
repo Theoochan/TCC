@@ -84,7 +84,7 @@ usa `prepare()` e `execute()`, nunca concatenação.
 | Arquivo | Conteúdo |
 |---|---|
 | [docs/TCC.md](docs/TCC.md) | o documento, versão corrente |
-| [docs/DECISOES.md](docs/DECISOES.md) | 31 decisões, com as alternativas descartadas |
+| [docs/DECISOES.md](docs/DECISOES.md) | 34 decisões, com as alternativas descartadas |
 | [docs/PENDENCIAS.md](docs/PENDENCIAS.md) | o que falta decidir |
 | [docs/ENTREGAS.md](docs/ENTREGAS.md) | as onze entregas até o MVP |
 | [docs/ddl.sql](docs/ddl.sql) | criação do banco |

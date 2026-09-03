@@ -16,12 +16,14 @@ de uma semana.
 
 ## E0 — Esqueleto ✅
 
-**Feito.** Branch `estrutura/php`, ainda sem commit.
+**Feito.** Commit `262f4b2` na `main`.
 
-Front controller, roteador, view com layout, configuração fora da raiz web, autoload
-PSR-4, helpers de escape. Cinco arquivos em `app/Core`, ~250 linhas.
+Front controller com as rotas num array, páginas separadas do layout (`topo.php` e
+`rodape.php`), configuração fora da raiz web, conexão PDO criada sob demanda, funções de
+escape e formatação, e a verificação de acesso feita no roteador — não na página. Sem
+Composer: o carregamento é por `require` explícito (D-34).
 
-**Demonstra:** `GET /` responde 200 renderizando view dentro de layout; `/nao-existe`
+**Demonstra:** `GET /` responde 200 renderizando a página dentro do layout; `/nao-existe`
 responde 404; arquivos estáticos são servidos.
 
 ---
@@ -33,11 +35,12 @@ responde 404; arquivos estáticos são servidos.
 | **Requisitos** | — (infraestrutura) |
 | **Fecha no documento** | seção 4.3 (Script DML) |
 
-- Executar `docs/ddl.sql` e conferir que as 11 tabelas e 22 restrições sobem sem erro
-- `app/Core/Database.php` — conexão PDO única, consultas preparadas, transações
-- Carga de demonstração: categorias, produtos, variantes, imagens, faixas de frete e um
-  usuário administrador — é o "estoque fictício" da apresentação **e** o Script DML da
-  seção 4.3
+- Executar `docs/ddl.sql` e conferir que sobem sem erro as 12 tabelas, as 12 chaves
+  estrangeiras e as 14 restrições `CHECK`
+- `incluir/conexao.php` — conexão PDO única por requisição, consultas preparadas, transações
+- Carga de demonstração: categorias, cores, produtos, variantes, imagens, entradas de
+  estoque, faixas de frete e um usuário administrador — é o "estoque fictício" da
+  apresentação **e** o Script DML da seção 4.3
 - Primeiro Model lendo dados reais: `Categoria::todas()`
 - Página inicial listando as categorias vindas do banco
 
@@ -82,9 +85,10 @@ selecionável.
 - Cadastro com CPF, telefone, endereço e **registro do consentimento** (data, hora, versão
   dos termos — D-20)
 - Login e logout com `password_hash` / `password_verify`
-- `Core/Session.php` e `Core/Csrf.php`
+- Token anti-CSRF nos formulários; as funções de sessão ficam em `incluir/funcoes.php`
 - `session_regenerate_id(true)` no login
-- Verificação de papel: rotas de `routes/admin.php` exigem `papel = 'admin'`
+- Verificação de papel: as rotas iniciadas por `/admin` exigem `papel = 'admin'`, pela
+  verificação que o `index.php` já faz com `incluir/protegido-admin.php`
 - Verificação de situação: `inativo` e `anonimizado` não acessam
 
 **Demonstra:** criar conta, sair, entrar de novo; tentar abrir uma rota de administração

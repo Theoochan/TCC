@@ -1166,8 +1166,9 @@ e consultas preparadas.
   negócio e escopo, independentes de tecnologia.
 - O requisito NF001 permanece válido: Tailwind CSS, DaisyUI e Alpine.js são tecnologias de
   interface, sem vínculo com o framework de aplicação.
-- O código Blade produzido anteriormente (branch `design/homepage-1b`) permanece como
-  referência de marcação e estilo, portável para template PHP sem alteração de CSS.
+- O código Blade produzido anteriormente (branch `design/homepage-1b`, no repositório da
+  fase Laravel) permanece como referência de marcação e estilo, portável para template PHP
+  sem alteração de CSS.
 
 ---
 
@@ -1288,6 +1289,63 @@ lugar pior.
 - **O momento foi escolhido:** a mudança ocorreu antes de existir qualquer dado, quando
   custa reescrever dois arquivos. Depois da E2 custaria também as consultas da vitrine, e
   depois da E7 a tela de upload.
+
+---
+
+## D-34 — Sem Composer: carregamento por `require` explícito
+**Pendência:** — (revisão de D-30) · **Data:** 2026-08-31 · **Revoga parcialmente:** D-30
+
+**Contexto:** D-30 tirou o Laravel, mas preservou o Composer "apenas para carregamento
+automático de classes (PSR-4)". Ao montar a estrutura do projeto ficou visível que não há
+o que gerenciar: o sistema não usa nenhuma biblioteca de terceiros. Acesso a dados, senha,
+sessão e upload são recursos nativos do PHP; o gateway da fase 1 é classe própria (D-06);
+o frete é tabela de faixas de CEP, sem serviço externo (D-04); não há envio de e-mail
+(D-14); e o Tailwind entra por CDN e depois por executável avulso, sem Node (D-32).
+
+Um gerenciador de dependências para zero dependências deixaria de fora sua função e
+manteria só o efeito colateral — o autoload —, cujo preço é o contrato PSR-4: `namespace`
+em cada arquivo, `use` em cada consumidor e um passo de instalação antes de o projeto rodar.
+
+**Decisão:**
+
+1. **O Composer sai do projeto.** Não há `composer.json` nem `vendor/`; rodar o sistema
+   exige apenas PHP e MySQL.
+2. **O carregamento é por `require` explícito, em dois lugares:** `publico/index.php`
+   carrega configuração, conexão, funções e modelos; `incluir/modelos.php` é a lista de
+   `require`, um por modelo.
+3. **Não se usa `namespace`.** Cada modelo é uma classe de nome simples — `Produto`,
+   `Venda` —, usada como agrupamento de métodos estáticos.
+
+**Alternativas descartadas:**
+
+- *Manter o Composer só para o autoload, como D-30 decidiu.* É o padrão do PHP moderno e
+  dispensa repetir `require`. O que se ganha são as doze linhas da lista de modelos; o que
+  se paga é `namespace` em todos os arquivos, `use` em todos os consumidores e um passo de
+  instalação no LEIAME — permanentes, enquanto o ganho é escrito uma vez. Descartada pela
+  troca, não por dificuldade: PSR-4 é convenção de nomes mais um `require`, e não tem nada
+  de obscuro.
+- *Autoload próprio com `spl_autoload_register`.* Dispensa o Composer em cinco linhas, mas
+  economiza as mesmas doze e acrescenta um mecanismo a manter.
+- *Um `require` em cada página, só do que ela usa.* Carrega menos por requisição, ao custo
+  de cada página ter de lembrar de suas dependências — e esquecer produz erro só naquela
+  rota.
+
+**Consequências:**
+
+- Instalar o projeto é copiar `config-exemplo.php`, rodar o DDL e subir o `php -S`.
+- Criar um modelo é acrescentar uma linha em `incluir/modelos.php` — o mesmo gesto de criar
+  uma rota, que é uma linha no array `$rotas`.
+- Todos os modelos carregam em toda requisição, inclusive os que a página não usa. Com doze
+  arquivos pequenos o custo é irrelevante.
+- Nome de classe passa a ser global: dois modelos não podem se chamar igual. Como há um por
+  tabela, e as tabelas já têm nome único, não há conflito.
+- **A decisão é reversível a custo baixo.** Se a fase 2 exigir o SDK de um provedor de
+  pagamento, basta `composer require` e uma linha `require 'vendor/autoload.php'` no
+  `index.php`: o autoload do pacote convive com os `require` do projeto, sem converter
+  nenhum arquivo existente para `namespace`.
+- **De D-30 permanece tudo o mais:** PHP sem framework, PDO com consultas preparadas e as
+  cinco proteções explícitas. Revoga-se apenas a frase que admitia o Composer. Nenhuma das
+  decisões D-01 a D-29 e D-31 a D-33 é afetada.
 
 ---
 

@@ -22,11 +22,11 @@ Prioridade: 🔴 bloqueia · 🟡 importante · ⚪ pode esperar
 
 ### DG-01 🟡 Substituir as três imagens de diagrama
 As especificações estão escritas no `TCC.md` (2.1, 2.3.1 e 2.4.1) e conferem com as
-30 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
+34 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
 
 - **2.1 Diagrama geral** — árvore de módulos (6 cadastros, 4 movimentações, 5 relatórios)
-- **2.3 Diagrama de classes** — 11 classes, operações próprias e multiplicidades (Astah)
-- **2.4 Modelo relacional** — 11 relações, chaves e restrições (MySQL Workbench)
+- **2.3 Diagrama de classes** — 12 classes, operações próprias e multiplicidades (Astah)
+- **2.4 Modelo relacional** — 12 relações, chaves e restrições (MySQL Workbench)
 
 O diagrama Mermaid em 2.4.1 serve para conferir o modelo antes de redesenhar.
 

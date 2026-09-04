@@ -35,12 +35,12 @@ responde 404; arquivos estáticos são servidos.
 | **Requisitos** | — (infraestrutura) |
 | **Fecha no documento** | seção 4.3 (Script DML) |
 
-- Executar `docs/ddl.sql` e conferir que sobem sem erro as 12 tabelas, as 12 chaves
+- Executar `docs/ddl.sql` e conferir que sobem sem erro as 13 tabelas, as 12 chaves
   estrangeiras e as 14 restrições `CHECK`
 - `incluir/conexao.php` — conexão PDO única por requisição, consultas preparadas, transações
-- Carga de demonstração: categorias, cores, produtos, variantes, imagens, entradas de
-  estoque, faixas de frete e um usuário administrador — é o "estoque fictício" da
-  apresentação **e** o Script DML da seção 4.3
+- Carga de demonstração: categorias, cores, produtos, combinações produto-cor, variantes,
+  imagens, entradas de estoque, faixas de frete e um usuário administrador — é o "estoque
+  fictício" da apresentação **e** o Script DML da seção 4.3
 - Primeiro Model lendo dados reais: `Categoria::todas()`
 - Página inicial listando as categorias vindas do banco
 

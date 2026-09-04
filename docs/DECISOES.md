@@ -1293,7 +1293,7 @@ lugar pior.
 ---
 
 ## D-34 — Sem Composer: carregamento por `require` explícito
-**Pendência:** — (revisão de D-30) · **Data:** 2026-08-31 · **Revoga parcialmente:** D-30
+**Pendência:** — (revisão de D-30) · **Data:** 2026-09-03 · **Revoga parcialmente:** D-30
 
 **Contexto:** D-30 tirou o Laravel, mas preservou o Composer "apenas para carregamento
 automático de classes (PSR-4)". Ao montar a estrutura do projeto ficou visível que não há
@@ -1346,6 +1346,158 @@ em cada arquivo, `use` em cada consumidor e um passo de instalação antes de o 
 - **De D-30 permanece tudo o mais:** PHP sem framework, PDO com consultas preparadas e as
   cinco proteções explícitas. Revoga-se apenas a frase que admitia o Composer. Nenhuma das
   decisões D-01 a D-29 e D-31 a D-33 é afetada.
+
+---
+
+## D-35 — Chave primária composta nas relações associativas
+**Pendência:** — (decisão de modelo) · **Data:** 2026-09-03
+
+**Contexto:** três relações do esquema existem apenas para ligar duas outras —
+`carrinho_item` liga usuário e variante, `venda_item` liga venda e variante, e
+`imagem_produto` liga produto e cor. Todas haviam sido criadas com chave substituta `id`
+mais uma restrição `UNIQUE` sobre as colunas que de fato as identificam.
+
+Isso declarava a mesma unicidade duas vezes: uma na chave primária, que não identificava
+nada do negócio, e outra na restrição, que identificava. E fazia com que os seis
+relacionamentos envolvidos aparecessem como **não identificadores** no diagrama — linha
+tracejada —, contrariando a convenção de modelagem em que a relação associativa recebe
+chave composta pelas estrangeiras que a formam.
+
+**Decisão:** as três relações passam a ter chave primária composta, e a coluna `id` é
+removida delas:
+
+| Relação | Chave primária |
+|---|---|
+| `carrinho_item` | (`usuario_id`, `variante_produto_id`) |
+| `venda_item` | (`venda_id`, `variante_produto_id`) |
+| `imagem_produto` | (`produto_id`, `cor_id`, `ordem`) |
+
+Em `imagem_produto`, `ordem` completa a chave por ser o que distingue duas fotografias da
+mesma galeria.
+
+A regra que decorre disso, e que vale para o resto do esquema: **chave composta nas
+associativas terminais; chave substituta em quem é referenciado.**
+
+**Alternativas descartadas:**
+
+- *Manter chave substituta em todas as relações* — o estado anterior. O argumento a favor
+  era a uniformidade: todo modelo do sistema buscaria o registro por `id`, com o mesmo
+  formato de consulta. Descartada porque a uniformidade era aparente: nenhuma das três é
+  referenciada por outra tabela, de modo que nada jamais as buscaria por `id`. A coluna
+  existia sem consumidor, enquanto a identificação real ficava numa restrição secundária.
+- *Estender a chave composta a `variante_produto`*, que também é identificada por uma
+  combinação (`produto_id`, `cor_id`, `tamanho`). Seria coerente com a mesma convenção, mas
+  `variante_produto` é referenciada por `carrinho_item`, `venda_item` e `entrada_estoque`:
+  cada uma passaria a carregar três colunas para apontá-la, e a chave de `venda_item`
+  chegaria a quatro. O custo recai sobre as tabelas vizinhas, não sobre ela.
+- *Declarar a chave composta como `UNIQUE` e manter o `id` como primária*, que é o estado
+  anterior sob outro nome. Não muda o diagrama, que é justamente o que se queria corrigir.
+
+**Consequências:**
+
+- Seis dos doze relacionamentos passam a ser identificadores e aparecem com **linha
+  contínua** no diagrama: usuário e variante para `carrinho_item`, venda e variante para
+  `venda_item`, produto e cor para `imagem_produto`.
+- As restrições `UNIQUE` caem de 10 para 7. A unicidade que as três garantiam passou para a
+  chave primária, sem perda.
+- Contagens inalteradas: 12 tabelas, 12 chaves estrangeiras, 14 restrições `CHECK`.
+- Os modelos da E4 e da E5 localizam item de carrinho e item de venda por **duas colunas**,
+  não por `id` — o formulário que remove um item da sacola envia usuário e variante, e não
+  um identificador único. É a única mudança que o código sente.
+- `pagamento` e `entrada_estoque` mantêm `id`: não são associativas. Duas entradas de
+  estoque da mesma variante no mesmo dia são eventos distintos e legítimos, assim como duas
+  tentativas de pagamento da mesma venda.
+- A justificativa entra na seção 2.4.1 do documento, sob "Chaves primárias compostas nas
+  relações associativas".
+
+---
+
+## D-36 — Produto e cor em relação muitos-para-muitos
+**Pendência:** — (decisão de modelo) · **Data:** 2026-09-03 · **Complementa:** D-33
+
+**Contexto:** D-33 tornou `cor` entidade própria e passou a galeria de fotografias a
+depender de produto **e** cor. A consequência só ficou visível ao revisar o modelo
+relacional no MySQL Workbench: `variante_produto` e `imagem_produto` carregam ambas o par
+(`produto_id`, `cor_id`), e o diagrama fecha um circuito — dois caminhos ligam produto a
+cor, e nada obriga os dois a concordarem.
+
+O defeito é de **legibilidade** antes de ser de integridade. O modelo obriga a descrição
+"um produto tem várias cores, várias imagens e várias variantes": três braços paralelos que
+não dizem como se relacionam entre si, e que deixam sem resposta as perguntas óbvias — a
+imagem é de qual cor? A cor de um produto vem da variante ou da imagem? Falta o nível
+intermediário, "o produto numa cor", que existe no negócio, é nomeado no dia a dia da loja
+("o hoodie navy") e não tinha tabela.
+
+Em consequência dessa ausência, nada impedia cadastrar imagem para uma combinação sem
+variante alguma — uma fotografia de cor em que a peça não é fabricada.
+
+**Decisão:**
+
+1. A relação entre produto e cor é **muitos-para-muitos** — um produto sai em várias cores,
+   e uma cor serve a vários produtos —, resolvida na relação associativa **`produto_cor`**,
+   de chave primária (`produto_id`, `cor_id`).
+2. `variante_produto` passa a referenciar `produto_cor` por **chave estrangeira composta**,
+   em lugar das duas chaves estrangeiras separadas. As colunas não mudam, e `tamanho`
+   permanece nela.
+3. `imagem_produto` idem.
+4. `tamanho` permanece `ENUM` na variante, sem entidade própria.
+
+A hierarquia do catálogo passa a ser explícita, e **`variante_produto` é `produto_cor` mais
+o tamanho**:
+
+    produto        "Hoodie Own"          nome, preço, composição
+      └ produto_cor  "Hoodie Own navy"     galeria de fotografias
+          └ variante   "Hoodie Own navy M"   sku, estoque
+
+**Alternativas descartadas:**
+
+- *Manter o modelo como está e validar a combinação na aplicação.* Fecharia o furo de
+  integridade com um `WHERE` na tela de imagens, ao custo de manter o circuito no diagrama
+  — isto é, sem resolver o problema principal, que é a impossibilidade de descrever o
+  modelo em uma cadeia coerente.
+- *Guardar o arquivo da fotografia dentro de `produto_cor`, como atributo da associação.*
+  É o caso canônico de classe associativa com atributo, e dispensaria uma tabela. Descartada
+  porque a chave primária (`produto_id`, `cor_id`) admite **uma** linha por combinação, logo
+  uma fotografia por cor, enquanto o RF010 pede a *galeria* de imagens — a própria carga de
+  demonstração já traz duas fotografias do Varsity na mesma cor.
+- *Prender a galeria apenas ao produto, sem cor.* Elimina o circuito e não cria tabela, mas
+  as diferentes cores exibiriam as mesmas fotografias, o que contraria o RF010, de
+  prioridade essencial, e tornaria decorativa a amostra de cor da página do produto.
+- *Prender a galeria à variante, revogando o item 2 do D-33.* Elimina o circuito, mas repete
+  o mesmo arquivo em cada tamanho e permite que a galeria de uma cor divirja entre tamanhos
+  — estado sem sentido no negócio que o esquema passaria a admitir.
+- *Guardar o tamanho em `produto_cor`.* A chave passaria a (`produto_id`, `cor_id`,
+  `tamanho`), que é a definição de `variante_produto`: as duas tabelas colapsariam numa só,
+  o par produto-cor voltaria a repetir-se uma vez por tamanho e a fotografia perderia
+  novamente onde se prender.
+- *Tratar `tamanho` como entidade, à semelhança de `cor`.* A simetria é aparente: `cor` é
+  entidade porque carrega o código hexadecimal e é compartilhada com a galeria, enquanto
+  `tamanho` não tem atributo próprio nem é referenciado por outra relação. Além disso, o
+  `ENUM` do MySQL ordena pela sequência de declaração, de modo que `ORDER BY tamanho` já
+  devolve PP, P, M, G, GG, XG, U — com entidade, seria necessária uma coluna de ordenação.
+- *Acrescentar atributos a `produto_cor`* (`ordem` das amostras na página, `situacao` para
+  descontinuar uma cor sem apagar variantes). Ampliam o escopo sem requisito que os exija;
+  a descontinuação já é atendida por `variante_produto.situacao`.
+
+**Consequências:**
+
+- O esquema passa de 12 para **13 tabelas**. As chaves estrangeiras permanecem **12**:
+  quatro simples são substituídas por duas compostas, e duas novas ligam `produto_cor` a
+  produto e a cor. As 14 restrições `CHECK` e as 7 `UNIQUE` não mudam.
+- O banco passa a garantir, sem auxílio da aplicação, que variante e imagem só existam para
+  uma combinação de produto e cor declarada.
+- O diagrama deixa de ter circuito: produto e cor se ligam por um caminho só.
+- A descrição do modelo passa a ser uma cadeia — "um produto sai em determinadas cores; cada
+  produto-cor tem sua galeria e seus tamanhos; o tamanho com estoque é a variante".
+- Duas relações identificadoras novas — produto e cor para `produto_cor` —, somadas às seis
+  de D-35, dão **oito** relacionamentos de linha contínua no diagrama.
+- A carga de demonstração ganha nove linhas, uma por combinação existente.
+- Na E7, a tela de variante passa a inserir a combinação em `produto_cor` quando ela ainda
+  não existir, na mesma transação, de modo que o administrador não vê um cadastro a mais; a
+  tela de imagens passa a oferecer somente as cores já declaradas para aquele produto.
+- Na E2, a consulta das cores de um produto lê `produto_cor` diretamente, dispensando o
+  `SELECT DISTINCT` sobre `variante_produto`.
+- O cadastro de Produto-Cor entra na seção 1.4.3-A, que passa a ter oito cadastros.
 
 ---
 

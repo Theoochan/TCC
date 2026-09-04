@@ -96,6 +96,25 @@ CREATE TABLE produto (
     CONSTRAINT ck_produto_valor CHECK (valor >= 0)
 ) ENGINE = InnoDB;
 
+-- Resolve a relação muitos-para-muitos entre produto e cor: "este produto
+-- existe nesta cor". É o nível ao qual pertencem a galeria de fotografias e
+-- os tamanhos disponíveis.
+CREATE TABLE produto_cor (
+    produto_id  INT UNSIGNED NOT NULL,
+    cor_id      INT UNSIGNED NOT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+                             ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (produto_id, cor_id),
+    KEY idx_produto_cor_cor (cor_id),
+    CONSTRAINT fk_produto_cor_produto
+        FOREIGN KEY (produto_id) REFERENCES produto (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_produto_cor_cor
+        FOREIGN KEY (cor_id) REFERENCES cor (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
 CREATE TABLE variante_produto (
     id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
     produto_id   INT UNSIGNED NOT NULL,
@@ -111,17 +130,13 @@ CREATE TABLE variante_produto (
     UNIQUE KEY uk_variante_sku (sku),
     UNIQUE KEY uk_variante_combinacao (produto_id, cor_id, tamanho),
     KEY idx_variante_cor (cor_id),
-    CONSTRAINT fk_variante_produto
-        FOREIGN KEY (produto_id) REFERENCES produto (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_variante_cor
-        FOREIGN KEY (cor_id) REFERENCES cor (id)
+    CONSTRAINT fk_variante_produto_cor
+        FOREIGN KEY (produto_id, cor_id) REFERENCES produto_cor (produto_id, cor_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT ck_variante_estoque CHECK (qtd_estoque >= 0)
 ) ENGINE = InnoDB;
 
 CREATE TABLE imagem_produto (
-    id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     produto_id  INT UNSIGNED NOT NULL,
     cor_id      INT UNSIGNED NOT NULL,
     arquivo     VARCHAR(255) NOT NULL,
@@ -129,15 +144,11 @@ CREATE TABLE imagem_produto (
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
                              ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_imagem_ordem (produto_id, cor_id, ordem),
+    PRIMARY KEY (produto_id, cor_id, ordem),
     KEY idx_imagem_cor (cor_id),
-    CONSTRAINT fk_imagem_produto
-        FOREIGN KEY (produto_id) REFERENCES produto (id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_imagem_cor
-        FOREIGN KEY (cor_id) REFERENCES cor (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT fk_imagem_produto_cor
+        FOREIGN KEY (produto_id, cor_id) REFERENCES produto_cor (produto_id, cor_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE faixa_frete (
@@ -160,15 +171,13 @@ CREATE TABLE faixa_frete (
 -- ─────────────────────────────────────────────────────────────
 
 CREATE TABLE carrinho_item (
-    id                   INT UNSIGNED NOT NULL AUTO_INCREMENT,
     usuario_id           INT UNSIGNED NOT NULL,
     variante_produto_id  INT UNSIGNED NOT NULL,
     qtde                 SMALLINT UNSIGNED NOT NULL,
     created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
                                       ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_carrinho_item (usuario_id, variante_produto_id),
+    PRIMARY KEY (usuario_id, variante_produto_id),
     KEY idx_carrinho_variante (variante_produto_id),
     CONSTRAINT fk_carrinho_usuario
         FOREIGN KEY (usuario_id) REFERENCES usuario (id)
@@ -213,7 +222,6 @@ CREATE TABLE venda (
 ) ENGINE = InnoDB;
 
 CREATE TABLE venda_item (
-    id                   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
     venda_id             INT UNSIGNED  NOT NULL,
     variante_produto_id  INT UNSIGNED  NOT NULL,
     qtde_vendida         SMALLINT UNSIGNED NOT NULL,
@@ -221,8 +229,7 @@ CREATE TABLE venda_item (
     created_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
                                        ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_venda_item (venda_id, variante_produto_id),
+    PRIMARY KEY (venda_id, variante_produto_id),
     KEY idx_venda_item_variante (variante_produto_id),
     CONSTRAINT fk_venda_item_venda
         FOREIGN KEY (venda_id) REFERENCES venda (id)

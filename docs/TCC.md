@@ -403,10 +403,11 @@ inerentes ao funcionamento do estabelecimento.
 3. **Produto:** `@*código`, `*nome`, `*descrição`, `*@codCategoria`, `modelagem`,
    `*valor`, `composição`, `cuidados`, `envioDevolucao`
 4. **Cor:** `@*código`, `*nome`, `*hex`, `hexSecundario`
-5. **Variante Produto:** `@*código`, `*@codProduto`, `*@codCor`, `*#sku`, `*tamanho`,
+5. **Produto-Cor:** `@*codProduto`, `@*codCor` — declara que o produto sai naquela cor
+6. **Variante Produto:** `@*código`, `*@codProduto`, `*@codCor`, `*#sku`, `*tamanho`,
    `*situacao`, `*qtdEstoque`
-6. **Imagem do Produto:** `@*código`, `*@codProduto`, `*@codCor`, `*arquivo`, `*ordem`
-7. **Faixa de Frete:** `@*código`, `*cepInicial`, `*cepFinal`, `*valor`, `*prazoDias`
+7. **Imagem do Produto:** `*@codProduto`, `*@codCor`, `*ordem`, `*arquivo`
+8. **Faixa de Frete:** `@*código`, `*cepInicial`, `*cepFinal`, `*valor`, `*prazoDias`
 
 A **categoria** classifica o tipo de peça (Camisetas, Moletons, Acessórios) e é exclusiva:
 um produto pertence a uma categoria, e uma categoria reúne vários produtos. A
@@ -593,10 +594,12 @@ flowchart TB
 
     C --> C1[Usuário]
     C --> C2[Categoria]
-    C --> C3[Produto]
-    C --> C4[Variante Produto]
-    C --> C5[Imagem da Variante]
-    C --> C6[Faixa de Frete]
+    C --> C3[Cor]
+    C --> C4[Produto]
+    C --> C5[Produto-Cor]
+    C --> C6[Variante Produto]
+    C --> C7[Imagem do Produto]
+    C --> C8[Faixa de Frete]
 
     M --> M1[Carrinho]
     M --> M2[Venda]
@@ -649,6 +652,7 @@ omitidos do diagrama de classes por serem infraestrutura, não regra de negócio
 | **Produto** | `nome : String` · `descricao : String` · `modelagem : Modelagem` · `valor : Decimal` · `composicao : String` · `cuidados : String` · `envioDevolucao : String` |
 | **VarianteProduto** | `sku : String` · `tamanho : Tamanho` · `qtdEstoque : int` · `situacao : SituacaoVariante` |
 | **Cor** | `nome : String` · `hex : String` · `hexSecundario : String` |
+| **ProdutoCor** | — (associativa: identifica-se pelo par que liga) |
 | **ImagemProduto** | `arquivo : String` · `ordem : int` |
 | **FaixaFrete** | `cepInicial : String` · `cepFinal : String` · `valor : Decimal` · `prazoDias : int` |
 | **CarrinhoItem** | `qtde : int` |
@@ -687,6 +691,7 @@ de negócio.
 | Categoria | — |
 | Cor | `amostra()` |
 | Produto | `precoFormatado()`, `coresDisponiveis()` |
+| ProdutoCor | `galeria()`, `tamanhosDisponiveis()` |
 | VarianteProduto | `disponivel()`, `quantidadeDisponivel()`, `baixarEstoque()`, `reporEstoque()` |
 | ImagemProduto | — |
 | FaixaFrete | `calcularPara(cep)` |
@@ -701,10 +706,10 @@ Multiplicidades:
 | Origem | Multiplicidade | Destino |
 |---|---|---|
 | Categoria | 1 ── 0..* | Produto |
-| Produto | 1 ── 1..* | VarianteProduto |
-| Produto | 1 ── 0..* | ImagemProduto |
-| Cor | 1 ── 0..* | VarianteProduto |
-| Cor | 1 ── 0..* | ImagemProduto |
+| Produto | 1 ── 1..* | ProdutoCor |
+| Cor | 1 ── 0..* | ProdutoCor |
+| ProdutoCor | 1 ── 1..* | VarianteProduto |
+| ProdutoCor | 1 ── 0..* | ImagemProduto |
 | VarianteProduto | 1 ── 0..* | EntradaEstoque |
 | Usuario | 1 ── 0..* | CarrinhoItem |
 | Usuario | 1 ── 0..* | Venda |
@@ -713,9 +718,15 @@ Multiplicidades:
 | VarianteProduto | 1 ── 0..* | CarrinhoItem |
 | VarianteProduto | 1 ── 0..* | VendaItem |
 
-A galeria pertence ao Produto qualificada pela Cor, e não à VarianteProduto: a fotografia
-registra a peça naquela cor, e é a mesma para todos os tamanhos. Prendê-la à variante
-obrigaria a repetir o mesmo arquivo em cada tamanho.
+Produto e Cor formam uma relação **muitos-para-muitos**: um produto sai em várias cores, e
+uma cor serve a vários produtos. A classe associativa **ProdutoCor** resolve essa relação e
+constitui o nível ao qual pertencem a galeria e os tamanhos — de modo que **VarianteProduto
+é ProdutoCor mais o tamanho**.
+
+A galeria pertence a ProdutoCor, e não a VarianteProduto nem a Produto. A fotografia
+registra a peça naquela cor, e é a mesma para todos os tamanhos: prendê-la à variante
+obrigaria a repetir o mesmo arquivo em cada tamanho e permitiria que a galeria divergisse
+entre eles; prendê-la ao produto faria as diferentes cores exibirem as mesmas imagens.
 
 A multiplicidade `1..*` entre Produto e VarianteProduto expressa que um produto sem
 variante não é vendável. Já Categoria admite `0..*` produtos, de modo que uma categoria
@@ -800,10 +811,16 @@ erDiagram
         datetime created_at
         datetime updated_at
     }
+    produto_cor {
+        int produto_id PK "e FK para produto"
+        int cor_id PK "e FK para cor"
+        datetime created_at
+        datetime updated_at
+    }
     variante_produto {
         int id PK
-        int produto_id FK
-        int cor_id FK
+        int produto_id FK "com cor_id, para produto_cor"
+        int cor_id FK "com produto_id, para produto_cor"
         varchar sku UK
         enum tamanho "PP|P|M|G|GG|XG|U"
         int qtd_estoque
@@ -812,11 +829,10 @@ erDiagram
         datetime updated_at
     }
     imagem_produto {
-        int id PK
-        int produto_id FK
-        int cor_id FK
+        int produto_id PK "e FK para produto_cor"
+        int cor_id PK "e FK para produto_cor"
+        tinyint ordem PK "completa a chave"
         varchar arquivo
-        tinyint ordem
         datetime created_at
         datetime updated_at
     }
@@ -830,9 +846,8 @@ erDiagram
         datetime updated_at
     }
     carrinho_item {
-        int id PK
-        int usuario_id FK
-        int variante_produto_id FK
+        int usuario_id PK "e FK para usuario"
+        int variante_produto_id PK "e FK para variante_produto"
         smallint qtde
         datetime created_at
         datetime updated_at
@@ -856,9 +871,8 @@ erDiagram
         datetime updated_at
     }
     venda_item {
-        int id PK
-        int venda_id FK
-        int variante_produto_id FK
+        int venda_id PK "e FK para venda"
+        int variante_produto_id PK "e FK para variante_produto"
         smallint qtde_vendida
         decimal subtotal "10,2"
         datetime created_at
@@ -887,10 +901,10 @@ erDiagram
     }
 
     categoria         ||--o{ produto          : classifica
-    produto           ||--|{ variante_produto : possui
-    produto           ||--o{ imagem_produto   : ilustra
-    cor               ||--o{ variante_produto : define
-    cor               ||--o{ imagem_produto   : agrupa
+    produto           ||--|{ produto_cor      : "sai em"
+    cor               ||--o{ produto_cor      : "serve a"
+    produto_cor       ||--|{ variante_produto : "tem tamanhos"
+    produto_cor       ||--o{ imagem_produto   : "tem galeria"
     variante_produto  ||--o{ carrinho_item    : compoe
     variante_produto  ||--o{ venda_item       : compoe
     variante_produto  ||--o{ entrada_estoque  : movimenta
@@ -910,10 +924,25 @@ erDiagram
 | cor | `nome` | evita cores homônimas |
 | variante_produto | `sku` | o código operacional identifica uma variante só |
 | variante_produto | (`produto_id`, `cor_id`, `tamanho`) | impede duplicar a mesma combinação |
-| imagem_produto | (`produto_id`, `cor_id`, `ordem`) | ordem sem empate dentro da galeria de uma cor |
-| carrinho_item | (`usuario_id`, `variante_produto_id`) | a variante não se repete no carrinho |
-| venda_item | (`venda_id`, `variante_produto_id`) | a variante não se repete no pedido |
+| imagem_produto | (`produto_id`, `cor_id`, `ordem`) — chave primária | ordem sem empate dentro da galeria de uma cor |
+| carrinho_item | (`usuario_id`, `variante_produto_id`) — chave primária | a variante não se repete no carrinho |
+| venda_item | (`venda_id`, `variante_produto_id`) — chave primária | a variante não se repete no pedido |
 | pagamento | `id_externo` | garante o processamento único da confirmação |
+
+**Chaves primárias compostas nas relações associativas**
+
+`carrinho_item`, `venda_item` e `imagem_produto` não possuem chave substituta: sua chave
+primária é composta pelas próprias chaves estrangeiras. São relações associativas, que
+existem apenas para ligar duas outras e não têm identidade apartada dessa ligação — o item
+de carrinho é o encontro de um usuário com uma variante, e some quando qualquer um dos dois
+some. Em `imagem_produto`, a chave recebe ainda `ordem`, que distingue as fotografias de uma
+mesma galeria.
+
+A escolha torna o relacionamento **identificador**, representado por linha contínua no
+diagrama, e elimina a duplicidade de declarar a mesma unicidade duas vezes — uma na chave
+primária substituta e outra numa restrição `UNIQUE`. As demais relações mantêm chave
+substituta `id`, por serem referenciadas por outras: fossem compostas, cada referência
+carregaria todas as colunas da chave.
 
 **Regras que o modelo não representa graficamente**
 
@@ -1077,6 +1106,25 @@ CREATE TABLE produto (
     CONSTRAINT ck_produto_valor CHECK (valor >= 0)
 ) ENGINE = InnoDB;
 
+-- Resolve a relação muitos-para-muitos entre produto e cor: "este produto
+-- existe nesta cor". É o nível ao qual pertencem a galeria de fotografias e
+-- os tamanhos disponíveis.
+CREATE TABLE produto_cor (
+    produto_id  INT UNSIGNED NOT NULL,
+    cor_id      INT UNSIGNED NOT NULL,
+    created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
+                             ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (produto_id, cor_id),
+    KEY idx_produto_cor_cor (cor_id),
+    CONSTRAINT fk_produto_cor_produto
+        FOREIGN KEY (produto_id) REFERENCES produto (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_produto_cor_cor
+        FOREIGN KEY (cor_id) REFERENCES cor (id)
+        ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE = InnoDB;
+
 CREATE TABLE variante_produto (
     id           INT UNSIGNED NOT NULL AUTO_INCREMENT,
     produto_id   INT UNSIGNED NOT NULL,
@@ -1092,17 +1140,13 @@ CREATE TABLE variante_produto (
     UNIQUE KEY uk_variante_sku (sku),
     UNIQUE KEY uk_variante_combinacao (produto_id, cor_id, tamanho),
     KEY idx_variante_cor (cor_id),
-    CONSTRAINT fk_variante_produto
-        FOREIGN KEY (produto_id) REFERENCES produto (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_variante_cor
-        FOREIGN KEY (cor_id) REFERENCES cor (id)
+    CONSTRAINT fk_variante_produto_cor
+        FOREIGN KEY (produto_id, cor_id) REFERENCES produto_cor (produto_id, cor_id)
         ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT ck_variante_estoque CHECK (qtd_estoque >= 0)
 ) ENGINE = InnoDB;
 
 CREATE TABLE imagem_produto (
-    id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
     produto_id  INT UNSIGNED NOT NULL,
     cor_id      INT UNSIGNED NOT NULL,
     arquivo     VARCHAR(255) NOT NULL,
@@ -1110,15 +1154,11 @@ CREATE TABLE imagem_produto (
     created_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
                              ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_imagem_ordem (produto_id, cor_id, ordem),
+    PRIMARY KEY (produto_id, cor_id, ordem),
     KEY idx_imagem_cor (cor_id),
-    CONSTRAINT fk_imagem_produto
-        FOREIGN KEY (produto_id) REFERENCES produto (id)
-        ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_imagem_cor
-        FOREIGN KEY (cor_id) REFERENCES cor (id)
-        ON DELETE RESTRICT ON UPDATE CASCADE
+    CONSTRAINT fk_imagem_produto_cor
+        FOREIGN KEY (produto_id, cor_id) REFERENCES produto_cor (produto_id, cor_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB;
 
 CREATE TABLE faixa_frete (
@@ -1141,15 +1181,13 @@ CREATE TABLE faixa_frete (
 -- ─────────────────────────────────────────────────────────────
 
 CREATE TABLE carrinho_item (
-    id                   INT UNSIGNED NOT NULL AUTO_INCREMENT,
     usuario_id           INT UNSIGNED NOT NULL,
     variante_produto_id  INT UNSIGNED NOT NULL,
     qtde                 SMALLINT UNSIGNED NOT NULL,
     created_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP
                                       ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_carrinho_item (usuario_id, variante_produto_id),
+    PRIMARY KEY (usuario_id, variante_produto_id),
     KEY idx_carrinho_variante (variante_produto_id),
     CONSTRAINT fk_carrinho_usuario
         FOREIGN KEY (usuario_id) REFERENCES usuario (id)
@@ -1194,7 +1232,6 @@ CREATE TABLE venda (
 ) ENGINE = InnoDB;
 
 CREATE TABLE venda_item (
-    id                   INT UNSIGNED  NOT NULL AUTO_INCREMENT,
     venda_id             INT UNSIGNED  NOT NULL,
     variante_produto_id  INT UNSIGNED  NOT NULL,
     qtde_vendida         SMALLINT UNSIGNED NOT NULL,
@@ -1202,8 +1239,7 @@ CREATE TABLE venda_item (
     created_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at           DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP
                                        ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (id),
-    UNIQUE KEY uk_venda_item (venda_id, variante_produto_id),
+    PRIMARY KEY (venda_id, variante_produto_id),
     KEY idx_venda_item_variante (variante_produto_id),
     CONSTRAINT fk_venda_item_venda
         FOREIGN KEY (venda_id) REFERENCES venda (id)
@@ -1276,6 +1312,11 @@ meio de restrições `CHECK`, e não depende da aplicação:
 | Valores monetários não negativos | `ck_produto_valor`, `ck_venda_frete`, `ck_venda_item_subtotal`, `ck_pagamento_valor`, `ck_faixa_valor` |
 | Estoque não negativo | `ck_variante_estoque` |
 | Quantidades positivas em carrinho e item de venda | `ck_carrinho_qtde`, `ck_venda_item_qtde` |
+
+Além das restrições `CHECK`, duas chaves estrangeiras **compostas** garantem que variante e
+imagem só existam para uma combinação de produto e cor previamente declarada em
+`produto_cor` — `fk_variante_produto_cor` e `fk_imagem_produto_cor`. Sem elas, cada coluna
+seria verificada isoladamente e o par poderia não corresponder a nenhum produto-cor real.
 
 Permanecem sob responsabilidade da aplicação apenas as regras que dependem de mais de um
 registro ou de comportamento transacional: o valor mínimo de R$ 50,00 por parcela, que

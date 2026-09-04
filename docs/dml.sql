@@ -109,6 +109,25 @@ VALUES
     'Envio em até 2 dias úteis após a confirmação do pagamento. Trocas e devoluções em até 7 dias corridos do recebimento.');
 
 
+-- ═══ PRODUTO-COR ═══════════════════════════════════════════════
+--
+-- Declara em que cores cada produto sai. Precede variantes e imagens,
+-- que só existem para uma combinação declarada aqui (decisão D-36).
+--
+-- cor_id:  1 Navy · 2 Creme · 3 Creme/Navy · 4 Tijolo
+
+INSERT INTO produto_cor (produto_id, cor_id) VALUES
+(1, 3),   -- Varsity "Rivalry" Wool · Creme/Navy
+(2, 1),   -- Hoodie "Own" · Navy
+(2, 2),   -- Hoodie "Own" · Creme
+(3, 1),   -- Tee "Est. MMXXV" · Navy
+(3, 2),   -- Tee "Est. MMXXV" · Creme
+(4, 1),   -- Boné "W" 6-panel · Navy
+(4, 4),   -- Boné "W" 6-panel · Tijolo
+(5, 1),   -- Tee "Rivalry Patch" · Navy
+(6, 1);   -- Meia "W" par · Navy
+
+
 -- ═══ VARIANTES ═════════════════════════════════════════════════
 --
 -- O SKU segue o formato WNR-<produto>-<tamanho>-<cor>.

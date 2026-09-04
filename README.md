@@ -3,7 +3,12 @@
 Plataforma de e-commerce. Projeto Integrador — IFPR Umuarama.
 Igor M. Delmonaco · Felipe T. Rodrigues
 
-PHP sem framework, MySQL, Tailwind CSS. Estrutura MVC simples.
+PHP sem framework, MySQL, Tailwind CSS.
+
+Modelo, view e controlador separados por responsabilidade: todo o SQL nos
+modelos, o layout em `topo.php` e `rodape.php`, e o controlador dividido
+entre o `index.php` — que roteia e verifica acesso — e o topo de cada
+página, que lê a requisição e chama o modelo (D-37).
 
 O Tailwind entra pelo CDN, que compila no navegador — nada para instalar.
 Na entrega E9 isso vira um CSS gerado pelo Tailwind CLI (um executável
@@ -84,7 +89,7 @@ usa `prepare()` e `execute()`, nunca concatenação.
 | Arquivo | Conteúdo |
 |---|---|
 | [docs/TCC.md](docs/TCC.md) | o documento, versão corrente |
-| [docs/DECISOES.md](docs/DECISOES.md) | 36 decisões, com as alternativas descartadas |
+| [docs/DECISOES.md](docs/DECISOES.md) | 37 decisões, com as alternativas descartadas |
 | [docs/PENDENCIAS.md](docs/PENDENCIAS.md) | o que falta decidir |
 | [docs/ENTREGAS.md](docs/ENTREGAS.md) | as onze entregas até o MVP |
 | [docs/ddl.sql](docs/ddl.sql) | criação do banco |

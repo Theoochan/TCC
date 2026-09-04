@@ -1501,6 +1501,67 @@ o tamanho**:
 
 ---
 
+## D-37 — Controlador dividido entre o roteador e o topo da página
+**Pendência:** — (decisão de arquitetura) · **Data:** 2026-09-03
+
+**Contexto:** com a saída do Laravel, D-30 registrou que "estrutura de diretórios,
+roteamento, camada de dados, validação e tratamento de erro passam a ser decisões
+explícitas do projeto". A do controlador, porém, foi tomada **por construção**, ao montar o
+esqueleto na E0, e nunca foi escrita. O `README` afirmava "estrutura MVC simples" sem que
+houvesse pasta de controladores em lugar nenhum — uma afirmação sem lastro visível, e a
+primeira pergunta de quem abre o repositório.
+
+**Decisão:** não há camada separada de controladores. As quatro tarefas de um controlador
+ficam divididas em dois lugares:
+
+| Tarefa | Onde |
+|---|---|
+| Receber a requisição e resolver a rota | `publico/index.php`, pelo array `$rotas` |
+| Verificar acesso | `publico/index.php`, por `protegido.php` / `protegido-admin.php` |
+| Ler o formulário e chamar **uma** operação do modelo | o topo do arquivo em `publico/paginas/` |
+| Definir o que a tela exibe | o próprio arquivo da página |
+
+A fronteira entre controlador e view, dentro do arquivo da página, é o `require` do
+`topo.php`: **acima dele não há HTML; abaixo dele não há regra.**
+
+São os padrões **Front Controller** (`index.php`) e **Page Controller** (cada página),
+descritos por Fowler em *Patterns of Enterprise Application Architecture* — a organização
+tem nome, e não é improviso.
+
+**Alternativas descartadas:**
+
+- *Camada separada de controladores, um arquivo por tela, com as views em pasta própria.* É
+  a organização do framework abandonado, e a que se esperaria de "MVC". Descartada pelo
+  mecanismo de repasse: sem *output buffering*, ou o controlador define as variáveis e
+  inclui a view — e então o controlador **é** a página com outro nome, sem ganho algum —, ou
+  se escreve uma função `renderizar($view, $dados)` apoiada em `extract()`, que cria
+  variáveis a partir de chaves de array. Variável que aparece sem nunca ter sido escrita é
+  precisamente o mecanismo invisível que D-30 e D-34 recusaram. Custo adicional: onze
+  arquivos para abrigar, na maioria das telas, duas ou três linhas.
+- *Controlador em classe, com um método por ação.* Depende do mesmo repasse e acrescenta
+  instanciação e despacho, sem resolver nada que as duas linhas no topo da página já
+  resolvam.
+- *Manter a divisão como está, sem registrá-la.* Era o estado anterior. Deixava a
+  arquitetura documentada apenas no `CLAUDE.md`, que é instrução para assistente e não
+  justificativa acadêmica.
+
+**Consequências:**
+
+- Rota nova continua sendo uma linha no array `$rotas` mais um arquivo em `paginas/`.
+- O que separa controlador de view é **disciplina, não estrutura**: o arquivo permite
+  misturar, e só a regra "`if` sobre a requisição, nunca sobre a regra" impede.
+- **Página gorda passa a ser sintoma de regra vazada do modelo**, e a correção é devolvê-la
+  ao modelo — não criar uma camada onde ela possa morar confortavelmente. É o principal
+  efeito prático desta decisão, e vale sobretudo para a E5.
+- Lógica compartilhada por duas rotas se resolve com uma função em `funcoes.php`, não com
+  herança de controlador.
+- **Gatilho de revisão:** a decisão se reabre se o topo de alguma página passar de vinte
+  linhas mesmo depois de as regras estarem no modelo, ou se duas rotas precisarem da mesma
+  lógica de requisição.
+- O `README` passa a descrever a divisão, em lugar de afirmar "MVC" sem detalhar.
+
+---
+
 ## Fora de escopo
 
 Recursos avaliados e deliberadamente não incluídos. Estar aqui é uma escolha defendida,

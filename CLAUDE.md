@@ -38,7 +38,7 @@ escolha entre o correto e o simples, apresente as duas e deixe ele decidir.
 
 Antes de sugerir qualquer coisa, leia:
 
-- `docs/DECISOES.md` — 36 decisões, com as alternativas descartadas
+- `docs/DECISOES.md` — 37 decisões, com as alternativas descartadas
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo

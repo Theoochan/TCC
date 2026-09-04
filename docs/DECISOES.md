@@ -1321,7 +1321,7 @@ em cada arquivo, `use` em cada consumidor e um passo de instalação antes de o 
 - *Manter o Composer só para o autoload, como D-30 decidiu.* É o padrão do PHP moderno e
   dispensa repetir `require`. O que se ganha são as doze linhas da lista de modelos; o que
   se paga é `namespace` em todos os arquivos, `use` em todos os consumidores e um passo de
-  instalação no LEIAME — permanentes, enquanto o ganho é escrito uma vez. Descartada pela
+  instalação no README — permanentes, enquanto o ganho é escrito uma vez. Descartada pela
   troca, não por dificuldade: PSR-4 é convenção de nomes mais um `require`, e não tem nada
   de obscuro.
 - *Autoload próprio com `spl_autoload_register`.* Dispensa o Composer em cinco linhas, mas

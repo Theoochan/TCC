@@ -268,7 +268,7 @@ INSERT INTO faixa_frete (cep_inicial, cep_final, valor, prazo_dias) VALUES
 -- comparação sempre falha e ninguém entra com esta conta.
 --
 -- Para definir a sua senha, gere o hash e atualize o registro —
--- o procedimento está no LEIAME.md. O hash não é versionado de
+-- o procedimento está no README.md. O hash não é versionado de
 -- propósito: este repositório é público.
 
 INSERT INTO usuario

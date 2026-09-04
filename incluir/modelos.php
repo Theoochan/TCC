@@ -10,7 +10,7 @@
 // acrescentar a linha aqui.
 // ────────────────────────────────────────────────────────────────
 
-// require __DIR__ . '/modelos/Categoria.php';
+require __DIR__ . '/modelos/Categoria.php';
 // require __DIR__ . '/modelos/Produto.php';
 // require __DIR__ . '/modelos/VarianteProduto.php';
 // require __DIR__ . '/modelos/ImagemVariante.php';

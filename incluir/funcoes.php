@@ -16,6 +16,10 @@
 // de quem visita a loja.
 function escapar($texto)
 {
+    if ($texto === null) {
+        return '';
+    }
+    
     return htmlspecialchars($texto, ENT_QUOTES, 'UTF-8');
 }
 

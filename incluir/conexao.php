@@ -22,7 +22,7 @@ function conexao()
 
         $pdo = new PDO($dsn, BANCO_USER, BANCO_SENHA);
 
-        // Erro de SQL passa a lançar exceção, em vez de falhar calado.
+        // Erro de SQL passa a lançar exceção
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // O resultado vem como array com nome de coluna:

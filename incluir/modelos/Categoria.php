@@ -11,6 +11,7 @@ class Categoria{
 
         return conexao()->query($sql)->fetchAll();
     }
+    //busca uma categoria pelo id
     public static function buscar($id){
         $sql =
             'SELECT id, nome, descricao

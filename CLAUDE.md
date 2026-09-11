@@ -42,7 +42,7 @@ Antes de sugerir qualquer coisa, leia:
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo
-- `docs/ddl.sql` — as 11 tabelas do banco
+- `docs/ddl.sql` — as 13 tabelas do banco
 
 Decisão registrada não se revisita sem motivo novo. Se for revisitar, registre
 como revogação, sem apagar a anterior.

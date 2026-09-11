@@ -41,7 +41,8 @@ responde 404; arquivos estáticos são servidos.
 - Carga de demonstração: categorias, cores, produtos, combinações produto-cor, variantes,
   imagens, entradas de estoque, faixas de frete e um usuário administrador — é o "estoque
   fictício" da apresentação **e** o Script DML da seção 4.3
-- Primeiro Model lendo dados reais: `Categoria::todas()`
+- Primeiro Model lendo dados reais: `incluir/modelos/Categoria.php`, com `Categoria::listar()`
+  e `Categoria::buscar($id)`
 - Página inicial listando as categorias vindas do banco
 
 **Demonstra:** a home exibe categorias que vieram do MySQL.
@@ -56,7 +57,7 @@ funcionando.
 | | |
 |---|---|
 | **Requisitos** | RF007 catálogo · RF010 detalhe do produto · RF005 busca |
-| **Models** | Categoria, Produto, VarianteProduto, ImagemVariante |
+| **Models** | Categoria, Produto, Cor, ProdutoCor, VarianteProduto, ImagemProduto |
 
 - Vitrine com produtos agrupados por categoria
 - Página de produto: galeria de imagens, seleção de cor e tamanho, composição, cuidados,
@@ -220,7 +221,8 @@ reais.
 | **Fecha pendências** | DS-01 |
 
 - Aplicar as correções de DS-01 nas telas de design antes de traduzi-las
-- Traduzir as quatro telas para os templates: homepage, produto, checkout, sobre
+- Traduzir as quatro telas para as páginas de `publico/paginas/`: homepage, produto,
+  checkout, sobre
 - Responsividade
 - Estados vazios: sacola vazia, busca sem resultado, nenhum pedido
 

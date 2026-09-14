@@ -1562,6 +1562,84 @@ tem nome, e não é improviso.
 
 ---
 
+## D-38 — Modelos: um por entidade, no padrão Table Data Gateway
+
+**Pendência:** — (decisão de arquitetura) · **Data:** 2026-09-12 · **Complementa:** D-30, D-37
+
+**Contexto:** D-37 decidiu onde mora o controlador; faltava dizer como se organiza a camada
+de modelo. A regra "um modelo por tabela" existia desde a reconstrução em PHP, mas sem
+critério declarado para as operações que tocam **mais de uma tabela** — que são a maioria,
+já que quase toda consulta tem `JOIN`.
+
+A lacuna apareceu na E2, ao escrever a página de produto: onde ficam "em que cores este
+produto sai" (lê `produto_cor` e `cor`) e "que tamanhos esta cor tem" (lê
+`variante_produto`)? Duas assinaturas chegaram a ser propostas — `Cor::listarPorProduto()` e
+`VarianteProduto::listar($produtoId, $corId)` — **contradizendo a seção 2.3**, que já
+distribui as operações próprias de cada classe. O diagrama de classes é entregável do
+trabalho: código e seção 2.3 divergirem é defeito, não detalhe.
+
+**Decisão:**
+
+1. O padrão adotado é o **Table Data Gateway** (Fowler, *Patterns of Enterprise Application
+   Architecture*): uma classe por entidade, somente métodos estáticos, todo o SQL dentro,
+   devolvendo arrays simples. **Não é Active Record** — nenhum objeto representa uma linha
+   nem sabe salvar-se; a classe é a porta de entrada da tabela, não a linha.
+2. As classes são as da **seção 2.3**, inclusive `ProdutoCor`: ser classe associativa não a
+   dispensa de modelo, porque o D-36 estabeleceu "o produto numa cor" como nível que existe
+   no negócio e a 2.3 lhe atribui duas operações próprias.
+3. **Critério de alocação: a operação pertence à classe sobre a qual a pergunta é feita** —
+   não à classe daquilo que é devolvido. Por isso `coresDisponiveis()` é de `Produto`,
+   embora devolva linhas de `cor`: a pergunta é sobre o produto.
+4. Operação que **atravessa tabelas** mora na entidade **dona da regra**, e não se reparte
+   entre modelos. `Venda::confirmar()`, na E5, grava o pagamento, baixa o estoque de várias
+   variantes e muda a situação numa transação só, porque a regra é da venda.
+5. A **seção 2.3 é a fonte dos nomes de método**. Divergência entre ela e o código corrige-se
+   em um dos dois, nunca se tolera.
+6. O diagrama exprime as operações sem as chaves identificadoras (`galeria()`), porque em UML
+   o objeto carrega a própria identidade; o código, sem instâncias, as recebe por parâmetro
+   (`ProdutoCor::galeria($produtoId, $corId)`). A frase de correspondência entra na 2.3
+   quando o diagrama for redesenhado — registrado em `DG-01`.
+
+**Alternativas descartadas:**
+
+- *Um único modelo `Produto` com variante, cor e imagem dentro.* Mais cômodo enquanto se
+  escreve a página de produto — um arquivo aberto em vez de três. Contradiz a 2.3 e, até a
+  E7, faria `Produto.php` responder por quatro tabelas, somando o CRUD de variante e as
+  operações de estoque. Separar depois seria retrabalho com as páginas já dependendo dos
+  nomes antigos.
+- *Agregados de Domain-Driven Design, com repositórios e raiz de agregado.* É o mesmo
+  agrupamento da alternativa anterior, feito com rigor: `Produto` como raiz, variante e
+  imagem alcançáveis só através dela. Descartada por custo de estrutura — repositórios,
+  entidades sem modificadores públicos, fronteiras de agregado —, que é precisamente a
+  complexidade recusada em D-30. Seu benefício real, invariantes que não podem ser violadas,
+  é obtido onde importa pelo item 4.
+- *Critério "o dono é a classe do que se devolve".* Proposto na discussão e descartado por
+  duas falhas: poria `coresDisponiveis()` em `Cor`, contra a 2.3, e não decide nada em
+  consulta com `JOIN` — `Produto::buscar()` lê `produto` e `categoria` e devolve as duas.
+- *Não criar modelo para `produto_cor`, por ser associação pura.* Também proposto e
+  descartado: associação pura seria uma tabela sobre a qual não se pergunta nada, e a 2.3
+  lhe dá `galeria()` e `tamanhosDisponiveis()`. A decisão é **por operação, não por tabela** —
+  ligação que de fato não tiver operação própria pode não receber classe.
+- *Ajustar o diagrama para exibir as chaves como parâmetros.* Levaria a chave primária a
+  quase toda operação de quase toda classe — `baixarEstoque(varianteId)`,
+  `calcularTotal(vendaId)` —, afastando o diagrama da convenção UML e poluindo justamente o
+  artefato cuja função é descrever o domínio.
+
+**Consequências:**
+
+- A E2 usa seis modelos: `Produto`, `Categoria`, `Cor`, `ProdutoCor`, `VarianteProduto`,
+  `ImagemProduto`.
+- Os nomes vêm da 2.3: `Produto::coresDisponiveis()`, `ProdutoCor::galeria()`,
+  `ProdutoCor::tamanhosDisponiveis()`, `VarianteProduto::disponivel()`.
+- O padrão tem nome publicado, o que dá resposta pronta a "que padrão de projeto é este?" e
+  permite citar a fonte na apresentação.
+- Na E5, `Venda::confirmar()` concentra a transação; nenhuma página orquestra tabelas.
+- **Gatilho de revisão:** a decisão se reabre se alguma classe passar a ter operação cuja
+  pergunta não seja sobre ela, ou se a 2.3 e o código divergirem por um motivo que não seja
+  erro de transcrição.
+
+---
+
 ## Fora de escopo
 
 Recursos avaliados e deliberadamente não incluídos. Estar aqui é uma escolha defendida,

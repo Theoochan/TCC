@@ -26,21 +26,28 @@ Felipe T. Rodrigues
 
 ## Estado do documento
 
-Decisões aplicadas: `D-01` a `D-33` (ver [DECISOES.md](DECISOES.md)).
+**Decisões aplicadas a este arquivo:** `D-01` a `D-36` (ver [DECISOES.md](DECISOES.md)).
+`D-34`, `D-37` e `D-38` são de arquitetura e não alteram seções do documento — salvo a nota
+do `D-38`, que entra na 2.3 junto com o redesenho (`DG-01`).
 
-| Seção | Situação |
-|---|---|
-| 1.1 – 1.5 | ✅ **Completa** — RF001 a RF016, NF001 a NF004, regras de negócio |
-| 2.1 Diagrama geral | ✅ Especificada · imagem a substituir (`DG-01`) |
-| 2.2 Casos de uso | ⚠️ Texto escrito, **diagrama ausente** |
-| 2.3 Diagrama de classes | ✅ Especificada · imagem a substituir (`DG-01`) |
-| 2.4 Modelo relacional | ✅ Especificada · imagem a substituir (`DG-01`) |
-| 3 Interfaces | ❌ Só o título — nada escrito |
-| 4.1 Protótipo | ❌ Nada escrito |
-| 4.2 Script DDL | ✅ Escrito e executado · 12 tabelas |
-| 4.3 Script DML | ✅ Escrito · carga de demonstração |
-| 4.4 Consultas dos relatórios | ❌ Nada escrito — cinco consultas (ver D-17) |
-| 5 Referências | ❌ Citações usadas no texto (Visure Solutions, Castro 2016, Brito 2010, Clemente 2024, Ramos 2013, Braz Junior 2007, Araújo 2008) mas a lista não existe |
+**Transcritas para o documento oficial:** `D-01` a `____` ← _atualizar ao transcrever_
+
+A diferença entre as duas linhas é o que falta transcrever. Tarefas detalhadas em
+[PENDENCIAS.md](PENDENCIAS.md).
+
+| Seção | Resp. | Situação |
+|---|---|---|
+| 1.1 – 1.5 | — | ✅ **Completa** — RF001 a RF016, NF001 a NF004, regras de negócio |
+| 2.1 Diagrama geral | Igor | ✅ Especificada · imagem a substituir (`DG-01`) |
+| 2.2 Casos de uso | Igor | ⚠️ Texto escrito, **diagrama ausente** (`DG-02`) |
+| 2.3 Diagrama de classes | Igor | ✅ Especificada · imagem a substituir + nota do `D-38` (`DG-01`) |
+| 2.4 Modelo relacional | Igor | ✅ Especificada · imagem a substituir (`DG-01`) |
+| 3 Interfaces | Igor | ❌ Só o título — depende das telas prontas (`DOC-02`) |
+| 4.1 Protótipo | Igor | ❌ Nada escrito (`DOC-03`) |
+| 4.2 Script DDL | — | ✅ Escrito e executado · **13 tabelas** |
+| 4.3 Script DML | Igor | ❌ **Vazia** — `docs/dml.sql` está pronto, falta colar (`DOC-01`) |
+| 4.4 Consultas dos relatórios | Igor | ❌ Nada escrito — cinco consultas, saem da E8 (`DOC-04`) |
+| 5 Referências | Igor | ❌ Sete obras citadas no texto, lista inexistente (`DOC-05`) |
 
 <!-- ═══ FIM DA SEÇÃO DE TRABALHO ═══ -->
 

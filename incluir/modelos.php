@@ -12,10 +12,10 @@
 //Produto
 require __DIR__ . '/modelos/Produto.php';
 require __DIR__ . '/modelos/Categoria.php';
-// require __DIR__ . '/modelos/VarianteProduto.php';
-// require __DIR__ . '/modelos/ProdutoCor.php';
+require __DIR__ . '/modelos/VarianteProduto.php';
+require __DIR__ . '/modelos/ProdutoCor.php';
 // require __DIR__ . '/modelos/ImagemProduto.php';
-// require __DIR__ . '/modelos/Cor.php';
+require __DIR__ . '/modelos/Cor.php';
 // require __DIR__ . '/modelos/EntradaEstoque.php';
 
 //Venda

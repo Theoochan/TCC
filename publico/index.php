@@ -9,15 +9,16 @@
 // ════════════════════════════════════════════════════════════════
 
 require __DIR__ . '/../incluir/config.php';
+
+// Em desenvolvimento, mostra o erro na tela. Em produção, esconde.
+ini_set('display_errors', MOSTRAR_ERROS ? '1' : '0');
+error_reporting(E_ALL);
+
 require __DIR__ . '/../incluir/conexao.php';
 require __DIR__ . '/../incluir/funcoes.php';
 require __DIR__ . '/../incluir/modelos.php';
 
 session_start();
-
-// Em desenvolvimento, mostra o erro na tela. Em produção, esconde.
-ini_set('display_errors', MOSTRAR_ERROS ? '1' : '0');
-error_reporting(E_ALL);
 
 
 // ── Rotas ───────────────────────────────────────────────────────
@@ -30,7 +31,7 @@ $rotas = [
     '/'          => 'paginas/home.php',
 
     // As demais entram conforme as entregas:
-    // '/produto'   => 'paginas/produto.php',
+     '/produto'   => 'paginas/produto.php',
     // '/busca'     => 'paginas/busca.php',
     // '/sacola'    => 'paginas/sacola.php',
     // '/entrar'    => 'paginas/entrar.php',
@@ -64,7 +65,7 @@ if (str_starts_with($caminho, '/admin')) {
 
 
 // ── Carrega a página ────────────────────────────────────────────
-
+ 
 if (isset($rotas[$caminho])) {
     require __DIR__ . '/' . $rotas[$caminho];
 } else {

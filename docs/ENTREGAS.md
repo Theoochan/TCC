@@ -12,6 +12,9 @@ abrir no navegador e mostrar funcionando, a entrega não fechou.
 Tamanho é relativo: **P** cabe numa sessão, **M** em duas ou três, **G** é a maior parte
 de uma semana.
 
+Status no título de cada entrega: **✅** feita · **🔄** em andamento · **⬜** não começada.
+Na entrega em andamento, cada item traz `[x]` ou `[ ]`.
+
 ---
 
 ## E0 — Esqueleto ✅
@@ -28,22 +31,24 @@ responde 404; arquivos estáticos são servidos.
 
 ---
 
-## E1 — Banco de dados e acesso a dados · P
+## E1 — Banco de dados e acesso a dados · P ✅
+
+**Feita.** Commit `4894884`.
 
 | | |
 |---|---|
 | **Requisitos** | — (infraestrutura) |
 | **Fecha no documento** | seção 4.3 (Script DML) |
 
-- Executar `docs/ddl.sql` e conferir que sobem sem erro as 13 tabelas, as 12 chaves
+- [x] Executar `docs/ddl.sql` e conferir que sobem sem erro as 13 tabelas, as 12 chaves
   estrangeiras e as 14 restrições `CHECK`
-- `incluir/conexao.php` — conexão PDO única por requisição, consultas preparadas, transações
-- Carga de demonstração: categorias, cores, produtos, combinações produto-cor, variantes,
+- [x] `incluir/conexao.php` — conexão PDO única por requisição, consultas preparadas
+- [x] Carga de demonstração: categorias, cores, produtos, combinações produto-cor, variantes,
   imagens, entradas de estoque, faixas de frete e um usuário administrador — é o "estoque
   fictício" da apresentação **e** o Script DML da seção 4.3
-- Primeiro Model lendo dados reais: `incluir/modelos/Categoria.php`, com `Categoria::listar()`
+- [x] Primeiro Model lendo dados reais: `incluir/modelos/Categoria.php`, com `Categoria::listar()`
   e `Categoria::buscar($id)`
-- Página inicial listando as categorias vindas do banco
+- [x] Página inicial listando as categorias vindas do banco
 
 **Demonstra:** a home exibe categorias que vieram do MySQL.
 
@@ -52,21 +57,29 @@ funcionando.
 
 ---
 
-## E2 — Catálogo · G
+## E2 — Catálogo · G 🔄
 
 | | |
 |---|---|
 | **Requisitos** | RF007 catálogo · RF010 detalhe do produto · RF005 busca |
 | **Models** | Categoria, Produto, Cor, ProdutoCor, VarianteProduto, ImagemProduto |
 
-- Vitrine com produtos agrupados por categoria
-- Página de produto: galeria de imagens, seleção de cor e tamanho, composição, cuidados,
-  produtos da mesma categoria
-- **Variantes indisponíveis aparecem riscadas** (D-11) — exige o cálculo de disponibilidade
-  da regra 5 da seção 2.4.1, que desconta as reservas vigentes
-- Busca por nome, cor, categoria, modelagem e descrição
-- Layout e tokens da marca (navy, creme, areia, tijolo; Cinzel, Oswald, Libre Caslon,
+- [x] **Vitrine única**, com a categoria aplicada como filtro em `/?categoria=N` (D-39)
+- [x] Página de produto: ficha com nome, preço, descrição, composição, cuidados e envio
+- [x] Seleção de cor, com amostra bicolor para o Varsity (D-33)
+- [x] Seleção de tamanho, com **o indisponível riscado** (D-11)
+- [ ] Galeria de imagens que salta para a cor selecionada (D-33)
+- [ ] Produtos da mesma categoria no rodapé da página de produto
+- [ ] Busca por nome, cor, categoria, modelagem e descrição
+- [x] Layout e tokens da marca (navy, creme, areia, tijolo; Cinzel, Oswald, Libre Caslon,
   JetBrains Mono) — a base visual, não o acabamento
+
+A disponibilidade hoje é `qtd_estoque > 0`, concentrada em `VarianteProduto::disponivel()`.
+O desconto das reservas vigentes (regra 5 da seção 2.4.1) entra na **E5**, alterando só esse
+método.
+
+A troca de cor recarrega a página. Substituí-la por Alpine.js, sem recarga, é melhoria
+posterior — a loja funciona sem JavaScript, e essa camada é adiável sem quebrar nada.
 
 **Demonstra:** navegar do catálogo até um produto, escolher tamanho, ver um tamanho
 esgotado riscado, buscar por "moletom".
@@ -76,7 +89,7 @@ selecionável.
 
 ---
 
-## E3 — Contas · M
+## E3 — Contas · M ⬜
 
 | | |
 |---|---|
@@ -100,7 +113,7 @@ CPF duplicado é recusado pela restrição de unicidade.
 
 ---
 
-## E4 — Carrinho · M
+## E4 — Carrinho · M ⬜
 
 | | |
 |---|---|
@@ -121,7 +134,7 @@ comportamento correto, e é o contraste com o que acontece no pedido.
 
 ---
 
-## E5 — Checkout e pagamento simulado · G 🔴
+## E5 — Checkout e pagamento simulado · G ⬜ 🔴
 
 **A entrega mais difícil, e a que concentra o risco do projeto.**
 
@@ -157,7 +170,7 @@ pagamento e tentar de novo, com as duas tentativas registradas.
 
 ---
 
-## E6 — Meus pedidos · P
+## E6 — Meus pedidos · P ⬜
 
 | | |
 |---|---|
@@ -170,7 +183,7 @@ pagamento e tentar de novo, com as duas tentativas registradas.
 
 ---
 
-## E7 — Painel: cadastros e estoque · G
+## E7 — Painel: cadastros e estoque · G ⬜
 
 | | |
 |---|---|
@@ -193,7 +206,7 @@ e a mensagem explica que se deve inativar.
 
 ---
 
-## E8 — Painel: pedidos e relatórios · M
+## E8 — Painel: pedidos e relatórios · M ⬜
 
 | | |
 |---|---|
@@ -214,7 +227,7 @@ reais.
 
 ---
 
-## E9 — Acabamento visual · M
+## E9 — Acabamento visual · M ⬜
 
 | | |
 |---|---|
@@ -230,7 +243,7 @@ reais.
 
 ---
 
-## E10 — Documento e diagramas · M
+## E10 — Documento e diagramas · M 🔄
 
 Corre em paralelo, não depende de código.
 
@@ -249,7 +262,7 @@ Corre em paralelo, não depende de código.
 ## Ordem e dependências
 
 ```
-E0 ✅ ──> E1 ──> E2 ──────────────> E9
+E0 ✅ ──> E1 ✅ ──> E2 🔄 ──────────> E9
                  │
                  └──> E3 ──> E4 ──> E5 ──> E6
                               │      │

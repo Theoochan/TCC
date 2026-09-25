@@ -1640,6 +1640,56 @@ trabalho: código e seção 2.3 divergirem é defeito, não detalhe.
 
 ---
 
+## D-39 — Vitrine única, com a categoria aplicada como filtro
+
+**Pendência:** — (decisão de interface) · **Data:** 2026-09-25 · **Altera:** `ENTREGAS.md` E2
+
+**Contexto:** o plano da E2 previa "vitrine com produtos agrupados por categoria" — uma
+página inicial com uma seção por categoria, cada uma listando os seus produtos. Ao começar
+a entrega, o desenho em `docs/design/Homepage.dc.html` mostrou outra coisa: o bloco "Escolha
+seu campo." é uma **navegação** de escolha única, com um cartão por categoria, e o bloco
+"Fall Rivalry." é uma **listagem** de produtos. São duas peças distintas, não seções.
+
+**Decisão:**
+
+1. Uma única tela de vitrine, na rota `/`, listando todos os produtos.
+2. A categoria entra como **filtro**, por parâmetro: `/?categoria=N`. As categorias vêm do
+   banco e desenham a navegação; o link "Tudo" é a ausência do parâmetro.
+3. Categoria inexistente **redireciona** para `/`, porque é refinamento de uma página que
+   existe de qualquer modo. Contrasta com `/produto?id=N`, onde o identificador **é** o
+   recurso e o inexistente devolve 404.
+4. Um método só no modelo, com filtro opcional: `Produto::listar($categoria_id = null)`.
+
+**Alternativas descartadas:**
+
+- *Agrupar por categoria na mesma página.* Exige converter as linhas planas do banco em
+  lista-dentro-de-lista no PHP — um laço de agrupamento com verificação de chave existente.
+  Com seis produtos cabe; com sessenta vira um paredão sem navegação. E não corresponde ao
+  desenho, que separa navegação de listagem.
+- *Rota própria por categoria* (`/categoria?id=N`, com página em `paginas/`). Tornaria a
+  categoria um recurso, e então o identificador inválido seria 404 em vez de redirecionamento.
+  Custa uma rota e uma página a mais para exibir o mesmo conteúdo da vitrine, com o mesmo
+  modelo.
+- *Filtro por várias categorias ao mesmo tempo* (`WHERE categoria_id IN (?, ?)`). Nenhum
+  requisito pede, e a navegação do desenho é de escolha única. Exigiria gerar os marcadores
+  conforme a quantidade recebida — tentar passar `"1,2"` num único `?` devolve silenciosamente
+  só a primeira categoria, sem erro algum.
+- *Devolver 404 na categoria inexistente.* Coerente se a categoria fosse recurso; como é
+  filtro, transformaria um parâmetro errado em beco sem saída, quando há uma leitura honesta
+  disponível — "esse filtro não existe, então não há filtro".
+
+**Consequências:**
+
+- A página inicial **é** a vitrine; não existe tela separada de categoria.
+- A URL com a categoria é compartilhável e funciona sem JavaScript.
+- `Categoria::buscar()` passa a ter duas funções na página: validar o filtro e nomear o
+  título e o `<title>`.
+- O filtro opcional em `Produto::listar()` é o mesmo formato que a busca da E2 vai usar para
+  combinar nome, cor e modelagem — filtros opcionais que se acumulam no mesmo `$valores`.
+- O `ENTREGAS.md` E2 passa a descrever vitrine única com filtro, em lugar de agrupamento.
+
+---
+
 ## Fora de escopo
 
 Recursos avaliados e deliberadamente não incluídos. Estar aqui é uma escolha defendida,

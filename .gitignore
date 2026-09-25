@@ -1,6 +1,9 @@
 # Tem a senha do banco
 /incluir/config.php
 
+# Backup automático que o MySQL Workbench gera ao salvar o .mwb
+*.mwb.bak
+
 # Imagens enviadas pelo admin
 /publico/uploads/*
 !/publico/uploads/.gitkeep

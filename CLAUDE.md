@@ -38,7 +38,7 @@ escolha entre o correto e o simples, apresente as duas e deixe ele decidir.
 
 Antes de sugerir qualquer coisa, leia:
 
-- `docs/DECISOES.md` — 37 decisões, com as alternativas descartadas
+- `docs/DECISOES.md` — 39 decisões, com as alternativas descartadas
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo
@@ -52,6 +52,25 @@ de escopo") e só então sai de `PENDENCIAS.md`.
 
 Decisão que muda esquema, arquivo ou nome propaga para `ENTREGAS.md` no mesmo
 movimento. O `DECISOES.md` fica certo sozinho; o `ENTREGAS.md` não.
+
+## Estado das entregas
+
+Toda entrega do `ENTREGAS.md` carrega status no título: **✅** feita · **🔄** em
+andamento · **⬜** não começada. Na entrega em andamento, cada item da lista traz
+`[x]` ou `[ ]`. Nenhuma entrega fica sem status.
+
+**Trava 1 — nada avança em silêncio.** Commit que muda comportamento do sistema
+atualiza o `ENTREGAS.md` no mesmo commit: o item marcado e, quando for o caso, o
+status da entrega. Código novo sem marca no documento é commit incompleto.
+
+**Trava 2 — não listar tarefa sem reler.** Antes de dizer o que falta fazer, leia
+o status e os itens da entrega corrente e declare o que já está feito. Lista
+montada de memória manda refazer o que já foi entregue.
+
+**Trava 3 — desenho que muda vira decisão.** Se a implementação divergir do que o
+`ENTREGAS.md` descreve, não basta corrigir o texto: registra-se a decisão em
+`DECISOES.md` com a alternativa descartada, e só então o `ENTREGAS.md` é
+atualizado. O que o avaliador pergunta é por que não foi do outro jeito.
 
 ## Arquitetura
 

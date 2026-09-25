@@ -27,9 +27,9 @@ Responsáveis: **Igor** — documento, diagramas e slides · **Felipe** — cód
 
 | Código | Resp. | Prio | Item | Depende de |
 |---|---|---|---|---|
-| `DOC-01` | Igor | 🟡 | Colar o script DML na seção 4.3 — **o arquivo já existe** | — |
+
 | `DOC-06` | Igor | 🟡 | Transcrever o `TCC.md` para o documento oficial | contínuo |
-| `DG-01` | Igor | 🟡 | Redesenhar os três diagramas (2.1, 2.3, 2.4) | — |
+| `DG-01` | Igor | 🟡 | Redesenhar os três diagramas (2.3, 2.4) | — |
 | `DG-02` | Igor | ⚪ | Desenhar o diagrama de casos de uso (2.2) | — |
 | `DOC-05` | Igor | 🟡 | Escrever a seção 5 — referências | — |
 | `DOC-02` | Igor | 🟡 | Escrever a seção 3 — interfaces de vídeo e impressas | telas prontas (E9) |
@@ -44,18 +44,6 @@ Os quatro primeiros não dependem de nada e podem começar hoje.
 
 ## Documento (Igor)
 
-### DOC-01 🟡 A seção 4.3 está vazia, e a tabela de estado diz que não
-
-O `docs/dml.sql` tem 282 linhas — a carga de demonstração completa, com as nove
-combinações de `produto_cor` e as duas variantes de estoque zerado que existem de
-propósito para demonstrar o tamanho riscado.
-
-O corpo da seção 4.3 do `TCC.md` diz `⚠️ Não escrita`, mas a tabela de estado no topo do
-mesmo arquivo diz `✅ Escrito`. **É a tabela que está errada.** Quem confiar nela entrega o
-documento sem o script DML, que é entregável obrigatório e já está pronto.
-
-**Fazer:** colar o conteúdo de `docs/dml.sql` na seção 4.3, como foi feito com o DDL na
-4.2, e corrigir a linha da tabela de estado.
 
 ### DOC-02 🟡 Seção 3 — Interfaces
 
@@ -106,7 +94,7 @@ EXPORTAR` e `FIM DA SEÇÃO DE TRABALHO`.
 
 Ainda não começados. Material que já existe pronto para virar slide:
 
-- `DECISOES.md` — 38 decisões com alternativas descartadas; a seção "Alternativas
+- `DECISOES.md` — 39 decisões com alternativas descartadas; a seção "Alternativas
   descartadas" de cada uma responde a "por que não fizeram de outro jeito?"
 - `D-38` — o padrão de projeto adotado (Table Data Gateway, Fowler), com a comparação
   contra modelo único e contra agregados de DDD
@@ -120,7 +108,7 @@ Ainda não começados. Material que já existe pronto para virar slide:
 
 ### DG-01 🟡 Substituir as três imagens de diagrama
 As especificações estão escritas no `TCC.md` (2.1, 2.3.1 e 2.4.1) e conferem com as
-38 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
+39 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
 
 - **2.1 Diagrama geral** — árvore de módulos (8 cadastros, 4 movimentações, 5 relatórios)
 - **2.3 Diagrama de classes** — 13 classes, operações próprias e multiplicidades (Astah)

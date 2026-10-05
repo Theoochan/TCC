@@ -16,6 +16,8 @@ $titulo = $produto['nome'];
 //cores disponíveis no produto selecionado
 $coresDisponiveis = Produto::coresDisponiveis($id);
 
+//produtos de mesma categoria
+$mesmaCategoria = Produto::listar($produto['categoria_id']);
 
 //carrega a cor passada pela url e suas variantes (tamanhos)
 $cor = null;
@@ -156,6 +158,31 @@ require __DIR__ . '/../../incluir/topo.php';
     </div>
     
 </div>
+
+<?php if(count($mesmaCategoria) > 1): ?>
+    <section class="mt-20 border-t border-[#0f1e3d]/20 pt-10">
+        <h2 class="titulo text-2xl md:text-3xl font-black mb-8">
+            Mais em <?= escapar($produto['categoria_nome']) ?>
+        </h2>
+        <ul class="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+            <?php foreach($mesmaCategoria as $item):?>
+                <li>
+                    <a href="/produto?id=<?= escapar($item['id']) ?>" class="block group">
+                        <div class="aspect-[3/4] bg-[#e8dcc0] mb-3"></div>
+                        <h3 class="titulo text-lg font-bold group-hover:text-[#a63a2a]">
+                            <?= escapar($item['nome']); ?>
+                        </h3>
+                        <p class="rotulo text-sm mt-1">
+                            <?= escapar(dinheiro($item['valor'])); ?>
+                        </p>
+                    </a>
+                    
+                </li>
+                
+            <?php endforeach?>
+        </ul>
+    </section>
+<?php endif; ?>
 
 <?php
 require __DIR__ . '/../../incluir/rodape.php';

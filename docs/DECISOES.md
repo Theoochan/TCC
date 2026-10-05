@@ -387,6 +387,9 @@ riscado** se representar retrabalho significativo:
 - Autosserviço de cancelamento e devolução — o cliente solicita pela própria conta, com
   verificação de elegibilidade por prazo e situação, e estorno automatizado junto ao
   provedor (D-18).
+- Produtos da mesma categoria **sem o próprio produto** e limitados a quatro — na E2 a
+  página de produto reaproveita `Produto::listar()`, que traz a categoria inteira, para não
+  criar um método exclusivo de uma tela *(acrescentado em 2026-10-05)*.
 
 **Alternativas descartadas:**
 

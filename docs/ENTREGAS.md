@@ -69,7 +69,8 @@ funcionando.
 - [x] Seleção de cor, com amostra bicolor para o Varsity (D-33)
 - [x] Seleção de tamanho, com **o indisponível riscado** (D-11)
 - [ ] Galeria de imagens que salta para a cor selecionada (D-33)
-- [ ] Produtos da mesma categoria no rodapé da página de produto
+- [x] Produtos da mesma categoria no rodapé da página de produto, reaproveitando
+  `Produto::listar()` — a lista inclui o próprio produto; excluí-lo está na fase 3 (D-10)
 - [ ] Busca por texto (nome, descrição, modelagem) e filtro por cor, combináveis com o de
   categoria na mesma vitrine (D-41)
 - [x] Layout e tokens da marca (navy, creme, areia, tijolo; Cinzel, Oswald, Libre Caslon,

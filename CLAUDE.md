@@ -38,7 +38,7 @@ escolha entre o correto e o simples, apresente as duas e deixe ele decidir.
 
 Antes de sugerir qualquer coisa, leia:
 
-- `docs/DECISOES.md` — 39 decisões, com as alternativas descartadas
+- `docs/DECISOES.md` — 41 decisões, com as alternativas descartadas
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo
@@ -78,7 +78,7 @@ atualizado. O que o avaliador pergunta é por que não foi do outro jeito.
       index.php    rotas (array), requires e verificação de acesso
       .htaccess    manda tudo para o index.php (só em produção, Apache)
       paginas/     uma por tela
-      uploads/     imagens de produto (não versionadas)
+      uploads/     imagens de produto; só as da demonstração são versionadas (D-40)
     incluir/     código compartilhado, fora do alcance de URL
       config.php   senha do banco e constantes de negócio (não versionado)
       conexao.php  função conexao(), devolve o PDO
@@ -99,7 +99,9 @@ Composer, sem Node, sem Apache em desenvolvimento
 - Nenhum SQL nas páginas; todo SQL vive nos modelos
 - Nenhum HTML nos modelos
 - Nenhuma regra de negócio nas páginas; `if` sobre a requisição, nunca sobre a regra
-- Cada página lê o formulário, chama **uma** operação do modelo e monta o HTML
+- Ação que altera dados é **uma** operação do modelo — se mexer em várias tabelas, é um
+  método só, que faz tudo numa transação (D-38). Leituras para montar a tela podem ser
+  várias, **nunca dentro de um laço** (D-37)
 - Todo dado que vai para a tela passa por `escapar()`
 - Todo valor externo em consulta usa `prepare()` + `execute()`, nunca concatenação
 - `incluir/` nunca vai para dentro de `publico/`

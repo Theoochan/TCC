@@ -1521,6 +1521,15 @@ ficam divididas em dois lugares:
 | Ler o formulário e chamar **uma** operação do modelo | o topo do arquivo em `publico/paginas/` |
 | Definir o que a tela exibe | o próprio arquivo da página |
 
+> ⚠️ **Esclarecido em 2026-10-05:** "chamar **uma** operação do modelo" vale para **ações que
+> alteram dados** — a palavra "formulário" aponta para isso. Uma ação é um método só; se
+> mexer em várias tabelas, esse método faz tudo numa transação, conforme o item 4 de D-38.
+> Leituras para montar a tela podem ser várias, **nunca dentro de um laço**. A E2 mostrou que,
+> lida ao pé da letra, a regra proibiria toda página de listagem: a vitrine e a página de
+> produto fazem três leituras cada. A alternativa — um método por tela, como
+> `Produto::paginaDeProduto()` — foi descartada por fazer o modelo conhecer a montagem das
+> páginas, contra o critério de alocação de D-38.
+
 A fronteira entre controlador e view, dentro do arquivo da página, é o `require` do
 `topo.php`: **acima dele não há HTML; abaixo dele não há regra.**
 
@@ -1687,6 +1696,149 @@ seu campo." é uma **navegação** de escolha única, com um cartão por categor
 - O filtro opcional em `Produto::listar()` é o mesmo formato que a busca da E2 vai usar para
   combinar nome, cor e modelagem — filtros opcionais que se acumulam no mesmo `$valores`.
 - O `ENTREGAS.md` E2 passa a descrever vitrine única com filtro, em lugar de agrupamento.
+
+---
+
+## D-40 — Imagens em arquivo servido pelo servidor web, com nome gerado pelo sistema
+
+**Pendência:** — (decisão de arquitetura) · **Data:** 2026-09-25 · **Complementa:** D-33, D-36
+
+**Contexto:** o esquema já guarda `imagem_produto.arquivo` como `VARCHAR(255)` e o
+`CLAUDE.md` já aponta `publico/uploads/` como destino, mas nunca se registrou **por que**, nem
+quem nomeia o arquivo, nem o que se valida ao receber. A lacuna apareceu ao escrever a
+galeria da E2: o banco referencia dez arquivos e nenhum existe no disco. E ela precisa estar
+fechada antes da tela de envio da E7, porque `publico/uploads/` é alcançável pela web — uma
+pasta de envio sem validação, dentro da raiz do site, é execução remota de código.
+
+**Decisão:**
+
+1. **O banco guarda o nome; o disco guarda o arquivo.** `imagem_produto.arquivo` continua
+   `VARCHAR(255)`.
+2. **O servidor web entrega o arquivo diretamente**, sem passar pelo PHP:
+   `<img src="/uploads/...">`. É o correto porque as imagens do catálogo são **públicas** —
+   não há permissão a verificar.
+3. **O nome é gerado pelo sistema**, nunca o enviado pelo navegador, no formato
+   `<produto_id>-<cor_id>-<aleatório>.jpg`. O prefixo agrupa e facilita depurar; o sufixo
+   aleatório garante unicidade.
+4. **Validação no envio (E7)**, nesta ordem: extensão contra lista branca, verificação do
+   tipo **real** do conteúdo (não o declarado), limite de tamanho, e **re-codificação** da
+   imagem com redimensionamento para no máximo 1200px de largura. A re-codificação reduz o
+   peso de megabytes para centenas de quilobytes **e** destrói qualquer conteúdo embutido no
+   arquivo original.
+5. Em produção, um `.htaccess` dentro de `uploads/` nega execução de `.php`, `.phtml` e
+   `.phar` — terceira barreira, independente das duas anteriores.
+6. **As dez imagens da carga de demonstração são versionadas**, com prefixo `demo-`; o que o
+   administrador enviar pela E7 não é. Elas são dados de demonstração, como o `dml.sql`, e
+   sem elas o repositório não sobe demonstrável em outra máquina.
+
+   > ⚠️ **Revisto em 2026-10-05, antes de aplicado:** o prefixo `demo-` foi trocado por
+   > adição forçada das dez imagens (`git add -f`), com o `.gitignore` inalterado. Arquivo já
+   > rastreado não é afetado pelo `.gitignore`, então o resultado é o mesmo — demonstração
+   > versionada, envios da E7 ignorados — sem renomear nada no `dml.sql` nem no banco. As
+   > imagens versionadas são marcadores provisórios, a substituir pelas fotografias com o
+   > mesmo nome de arquivo.
+7. Todos os arquivos ficam soltos em `uploads/`, sem subpastas por produto.
+
+**Alternativas descartadas:**
+
+- *Guardar a imagem no banco, em coluna `BLOB`.* Ganha consistência transacional — linha e
+  imagem entram e saem juntas, sem arquivo órfão — e backup único pelo `mysqldump`. Descartada
+  porque cada imagem passaria a custar um processo PHP e uma leitura do MySQL, em vez de ser
+  entregue pelo servidor web a custo quase nulo; porque o cache do navegador
+  (`Last-Modified`, `ETag`, resposta 304) deixaria de ser automático e teria de ser escrito à
+  mão; e porque mil fotografias inflariam o banco em centenas de megabytes, ocupando com
+  imagem a memória que deveria estar guardando linhas.
+- *Entregar o arquivo através do PHP, com a pasta fora da raiz web.* Permitiria verificar
+  quem pode ver cada imagem. Descartada pelo mesmo custo por requisição, para proteger
+  conteúdo que é público por definição. Seria a escolha certa para nota fiscal ou documento
+  do cliente — nada disso existe no MVP.
+- *Manter o nome do arquivo enviado pelo administrador.* Duas fotografias chamadas `foto.jpg`
+  sobrescrevem-se; nomes com acento, espaço ou `../` viram problema de caminho; e o nome
+  vindo de fora é o vetor do envio malicioso.
+- *Nome derivado apenas da chave primária* (`<produto_id>-<cor_id>-<ordem>.jpg`). Elegante e
+  sem colisão, mas reordenar a galeria mudaria `ordem` e obrigaria a renomear arquivos no
+  disco; e substituir uma fotografia manteria o nome, fazendo o navegador continuar exibindo
+  a antiga pelo cache. O sufixo aleatório resolve os dois, e a coluna `arquivo` existe
+  justamente para o nome não precisar ser calculado.
+- *Uma subpasta por produto.* Necessária na casa das dezenas de milhares de arquivos; com a
+  escala deste trabalho, só acrescenta caminho a montar sem benefício mensurável.
+- *Armazenamento de objetos com rede de distribuição* (S3 e afins). É o que se faria em
+  produção real, e o servidor da aplicação nunca tocaria nas imagens. Fora do escopo: exige
+  serviço pago, credenciais e uma biblioteca externa, contra D-30 e D-34.
+
+**Consequências:**
+
+- O desempenho não depende de quantas imagens existem, e sim de **quantas uma página
+  carrega**. A consulta da galeria é busca por prefixo da chave primária — medido com
+  `EXPLAIN`: `type=ref`, `key=PRIMARY`, uma linha examinada.
+- O risco de lentidão na vitrine é **N+1 de consulta**, não de arquivo: buscar a capa dentro
+  do laço de produtos faria uma consulta por produto. A capa deve vir em consulta única,
+  casada em PHP.
+- `loading="lazy"` nas imagens da vitrine, para o navegador só baixar o que está perto da
+  tela.
+- **Arquivo órfão é aceito.** A chave estrangeira apaga a linha em cascata, mas nada apaga o
+  arquivo. A E7 deve remover o arquivo junto, e sobras eventuais não quebram nada — ocupam
+  disco. É o preço de não usar `BLOB`, e está sendo pago conscientemente.
+- A E7 ganha a responsabilidade de redimensionar, o que exige a extensão GD do PHP —
+  disponível por padrão na maioria das instalações, a conferir antes da entrega.
+
+---
+
+## D-41 — Busca por texto no produto, com categoria e cor como filtros
+
+**Pendência:** — (decisão de interface) · **Data:** 2026-10-05 · **Complementa:** D-39 ·
+**Altera:** `ENTREGAS.md` E2
+
+**Contexto:** o plano da E2 previa "busca por nome, cor, categoria, modelagem e descrição".
+Havia duas leituras possíveis: uma caixa de texto que procura a palavra em todos esses
+campos, ou uma caixa de texto para o produto ao lado de filtros de escolha para categoria e
+cor. A medição no banco real mostrou que a primeira tem custos que não aparecem à primeira
+vista.
+
+**Decisão:**
+
+1. A busca é **mais um filtro da vitrine**, em `/?busca=termo`, como a categoria no D-39 —
+   sem rota nem página próprias.
+2. O texto é procurado só em colunas da tabela `produto`: `nome`, `descricao` e `modelagem`.
+3. **Categoria e cor são filtros de escolha**, desenhados a partir das listas do banco
+   (`Categoria::listar()` e `Cor::listar()`), e chegam por identificador: `categoria=N` e
+   `cor=N`. A cor é filtrada por
+   `id IN (SELECT produto_id FROM produto_cor WHERE cor_id = ?)`.
+4. Os três se combinam em qualquer mistura — `/?categoria=2&cor=1&busca=hoodie`. O `WHERE` é
+   montado uma única vez, juntando as condições presentes com `implode(' AND ', ...)`.
+5. Busca é `GET`. Termo vazio ou só de espaços equivale a não buscar. O termo passa por
+   `escapar()` ao reaparecer na tela.
+6. Cor inexistente na URL redireciona para a vitrine sem o filtro, pelo mesmo princípio do
+   D-39: filtro inválido não é erro de página.
+
+**Alternativas descartadas:**
+
+- *Uma caixa só, procurando a palavra também no nome da categoria e da cor.* Buscar cor por
+  texto obriga a juntar `produto` com `produto_cor`, e um produto com duas cores vira duas
+  linhas — medido: "moletom" devolveu o Hoodie duas vezes. Resolve-se com `DISTINCT` ou
+  subconsulta, mas o problema maior é de precisão: "creme" trouxe também o Varsity, cuja cor
+  se chama "Creme/Navy". Com filtro de escolha, Creme e Creme/Navy são opções distintas e o
+  cliente escolhe a que quer.
+- *Página própria em `/busca`.* Não se combina com os filtros da vitrine sem repetir neles a
+  mesma lógica, e duplica o card, o título e o estado vazio que a vitrine já tem.
+- *`JOIN` com `produto_cor` e `DISTINCT` para filtrar a cor.* Mudaria o `FROM` de todo o
+  `Produto::listar()` por causa de um filtro opcional. A subconsulta mantém a consulta
+  principal como está e entra como mais uma condição.
+- *Índice `FULLTEXT`.* `LIKE '%termo%'` não usa índice e lê a tabela inteira; com seis
+  produtos é instantâneo, com dezenas de milhares seria a resposta de produção. Fora do
+  escopo do MVP.
+
+**Consequências:**
+
+- `Produto::listar($categoria_id = null, $cor_id = null, $busca = null)` — três filtros
+  opcionais no mesmo formato de condição e valor em par.
+- Os parênteses em volta dos `OR` da busca de texto são obrigatórios: no SQL o `AND` tem
+  precedência, e sem eles o filtro de categoria vazaria sem erro.
+- A collation `utf8mb4_unicode_ci` ignora acento e maiúscula sem código algum — medido:
+  "bone" encontra "Boné", "NAVY" encontra "Navy".
+- `Cor::listar()`, escrito antes de ter uso, passa a desenhar o filtro de cor.
+- O `ENTREGAS.md` E2 passa a descrever busca de texto mais filtros, em lugar de busca em
+  todos os campos.
 
 ---
 

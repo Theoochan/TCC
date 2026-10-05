@@ -4,7 +4,9 @@
 # Backup automático que o MySQL Workbench gera ao salvar o .mwb
 *.mwb.bak
 
-# Imagens enviadas pelo admin
+# Imagens enviadas pelo admin.
+# Exceção: as 10 imagens da carga de demonstração são rastreadas, adicionadas
+# uma vez com git add -f (D-40). Arquivo já rastreado não é afetado por esta regra.
 /publico/uploads/*
 !/publico/uploads/.gitkeep
 

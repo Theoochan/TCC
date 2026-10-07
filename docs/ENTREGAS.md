@@ -68,7 +68,8 @@ funcionando.
 - [x] Página de produto: ficha com nome, preço, descrição, composição, cuidados e envio
 - [x] Seleção de cor, com amostra bicolor para o Varsity (D-33)
 - [x] Seleção de tamanho, com **o indisponível riscado** (D-11)
-- [ ] Galeria de imagens que salta para a cor selecionada (D-33)
+- [x] Galeria com foto principal e miniaturas, por recarga, que salta para a cor selecionada,
+  e imagem genérica quando não há foto (D-33, D-42)
 - [x] Produtos da mesma categoria no rodapé da página de produto, reaproveitando
   `Produto::listar()` — a lista inclui o próprio produto; excluí-lo está na fase 3 (D-10)
 - [ ] Busca por texto (nome, descrição, modelagem) e filtro por cor, combináveis com o de
@@ -80,8 +81,9 @@ A disponibilidade hoje é `qtd_estoque > 0`, concentrada em `VarianteProduto::di
 O desconto das reservas vigentes (regra 5 da seção 2.4.1) entra na **E5**, alterando só esse
 método.
 
-A troca de cor recarrega a página. Substituí-la por Alpine.js, sem recarga, é melhoria
-posterior — a loja funciona sem JavaScript, e essa camada é adiável sem quebrar nada.
+A troca de cor e a troca de foto da galeria recarregam a página. Substituí-las por
+Alpine.js, sem recarga — e com o carrossel do desenho na galeria —, é melhoria posterior: a
+loja funciona sem JavaScript, e essa camada é adiável sem quebrar nada.
 
 **Demonstra:** navegar do catálogo até um produto, escolher tamanho, ver um tamanho
 esgotado riscado, buscar por "moletom".

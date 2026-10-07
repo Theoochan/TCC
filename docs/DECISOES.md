@@ -1845,6 +1845,65 @@ vista.
 
 ---
 
+## D-42 — Galeria com foto principal e miniaturas, por recarga, e imagem genérica de reserva
+
+**Pendência:** — (decisão de interface) · **Data:** 2026-10-05 · **Complementa:** D-33, D-40
+
+**Contexto:** o desenho da página de produto traz a galeria como **carrossel** — miniaturas
+numeradas, setas de avanço e zoom —, o que exige JavaScript. A troca de cor já foi resolvida
+por recarga, com Alpine.js anotado como melhoria adiável no `ENTREGAS.md`. Faltava decidir
+como exibir mais de uma fotografia e o que mostrar quando não há fotografia. Na carga de
+demonstração, só o Varsity tem duas fotos; as outras oito combinações de produto e cor têm
+uma.
+
+**Decisão:**
+
+1. **Foto principal e miniaturas.** A principal é escolhida por parâmetro,
+   `/produto?id=1&cor=5&foto=2`, em que `foto` é o `ordem` da imagem — o componente da chave
+   que distingue uma fotografia da outra (D-35). Clicar numa miniatura recarrega a página.
+2. A página escolhe a principal **procurando na lista já carregada** por
+   `ProdutoCor::galeria()`, como faz com a cor; `foto` ausente ou inválida cai na primeira.
+3. As miniaturas só aparecem com mais de uma fotografia. Trocar de cor zera a escolha da
+   foto, porque o link da amostra leva só `id` e `cor`.
+4. **Uma imagem genérica do site**, `publico/img/sem-imagem.jpg` ("Ops! Imagem
+   indisponível."), cobre dois casos distintos: combinação sem fotografia cadastrada, que o
+   PHP percebe pela galeria vazia, e fotografia cadastrada cujo arquivo sumiu do disco, que
+   só o navegador perceberia ao falhar o download.
+5. **`urlImagem($arquivo)`, em `incluir/funcoes.php`**, monta o endereço da imagem e devolve
+   a genérica quando o nome vem vazio ou o arquivo não existe em `uploads/` — o disco é
+   conferido antes de imprimir o `<img>`, sem JavaScript.
+6. Toda imagem tem `alt` com produto, cor e posição ("Hoodie "Own" — Navy, foto 1 de 1"),
+   que é também o que o navegador exibe se o arquivo não carregar.
+
+**Alternativas descartadas:**
+
+- *Carrossel do desenho, com Alpine.js.* Fiel ao desenho, mas traz JavaScript para a primeira
+  versão. Fica para a mesma etapa que tirará a recarga da troca de cor, por cima do que já
+  funciona sem ele.
+- *Empilhar todas as fotografias, uma abaixo da outra.* Sem JavaScript e sem recarga, comum
+  em lojas de moda. Preterida para manter a forma do desenho — uma foto em destaque — e
+  deixar a troca para o Alpine sem mudar a estrutura da página.
+- *Bloco de HTML com o aviso, em lugar de um arquivo de imagem.* Dispensaria o arquivo, mas
+  só serve quando o PHP sabe que não há foto; o arquivo sumido do disco precisa de um
+  endereço de imagem para colocar no `src`.
+- *`Imagem::buscar()` como método de modelo.* `buscar` significa, no projeto, ir ao banco pela
+  chave, e classe em `modelos/` significa SQL de uma tabela. Montar um endereço não consulta
+  banco — é formatação, da mesma família de `dinheiro()`.
+- *Zoom.* Fora do escopo do MVP.
+
+**Consequências:**
+
+- `ProdutoCor::galeria($produto_id, $cor_id = null)` — mesmo formato de
+  `tamanhosDisponiveis()`, com o `$cor_id` opcional para quando o Alpine chegar.
+- `publico/img/` passa a existir, versionada, para arquivos do próprio site — distinta de
+  `uploads/`, que guarda fotografias de produto.
+- `urlImagem()` serve à galeria agora e, depois, à capa da vitrine, ao carrinho (E4) e aos
+  pedidos (E6); se a pasta mudar, muda em um lugar.
+- `file_exists()` custa uma consulta ao sistema de arquivos por imagem impressa —
+  irrelevante na escala do trabalho.
+
+---
+
 ## Fora de escopo
 
 Recursos avaliados e deliberadamente não incluídos. Estar aqui é uma escolha defendida,

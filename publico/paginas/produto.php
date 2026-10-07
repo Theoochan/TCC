@@ -12,6 +12,7 @@ if ($produto === null) {
     exit;
 }
 $titulo = $produto['nome'];
+$foto_pedida = $_GET['foto'] ?? null;
 
 //cores disponíveis no produto selecionado
 $coresDisponiveis = Produto::coresDisponiveis($id);
@@ -22,6 +23,7 @@ $mesmaCategoria = Produto::listar($produto['categoria_id']);
 //carrega a cor passada pela url e suas variantes (tamanhos)
 $cor = null;
 $variantes = [];
+$galeria = [];
 
 if (count($coresDisponiveis) > 0){
 
@@ -37,8 +39,21 @@ if (count($coresDisponiveis) > 0){
         $cor = $coresDisponiveis[0];
     }
 
-    //puxa as variantes (tamanhos) da cor selecionada
     $variantes = ProdutoCor::tamanhosDisponiveis($id,$cor['id']);
+
+    $galeria = ProdutoCor::galeria($id, $cor['id']);
+}
+
+$foto = null;
+
+foreach ($galeria as $item){
+    if ($item['ordem'] == $foto_pedida){
+        $foto = $item;
+    }
+}
+
+if ($foto === null && count($galeria) > 0){
+    $foto = $galeria[0];
 }
 
 require __DIR__ . '/../../incluir/topo.php';
@@ -52,9 +67,31 @@ require __DIR__ . '/../../incluir/topo.php';
     </a>
 </nav>
 <div class="grid gap-10 md:grid-cols-2 md:gap-14">
-    <!-- Galeria-->
-    <div class="aspect-[3/4] bg-[#e8dcc0]"></div>
+    <!-- Galeria -->
+    <div>
+        <?php if ($foto !== null): ?>
+            <img src="<?= escapar(urlImagem($foto['arquivo'])) ?>"
+                alt="<?= escapar($produto['nome'] . ' — ' . $cor['nome'] . ', foto ' . $foto['ordem'] . ' de ' . count($galeria)) ?>"
+                class="w-full aspect-[3/4] object-cover">
+        <?php else: ?>
+            <img src="<?= escapar(urlImagem(null)) ?>"
+                alt="Imagem indisponível"
+                class="w-full aspect-[3/4] object-cover">
+        <?php endif; ?>
 
+        <?php if (count($galeria) > 1): ?>
+            <div class="flex gap-2 mt-3">
+                <?php foreach ($galeria as $item): ?>
+                    <a href="/produto?id=<?= escapar($produto['id']) ?>&amp;cor=<?= escapar($cor['id']) ?>&amp;foto=<?= escapar($item['ordem']) ?>"
+                    class="w-16 border-2 <?= $item['ordem'] == $foto['ordem'] ? 'border-[#a63a2a]' : 'border-transparent' ?>">
+                        <img src="<?= escapar(urlImagem($item['arquivo'])) ?>"
+                            alt="Ver foto <?= escapar($item['ordem']) ?>"
+                            class="w-full aspect-[3/4] object-cover">
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+    </div>
     <!--Ficha do produto-->
     <div>
         <p class="rotulo text-[11px] uppercase tracking-[0.3em] text-[#a63a2a] mb-3">
@@ -121,7 +158,7 @@ require __DIR__ . '/../../incluir/topo.php';
             </div>
         </div>
 
-        <!--Atributos nullable-->
+        <!--Atributos nullable-->       
         <div class="border-t border-[#0f1e3d]/20">
             <?php if($produto['composicao']!== null): ?>
                 <div class="border-b border-[#0f1e3d]/20 py-4">

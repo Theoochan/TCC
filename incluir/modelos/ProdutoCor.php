@@ -29,4 +29,25 @@ class ProdutoCor{
 
         return $consulta->fetchAll();
     }
+
+    public static function galeria($produto_id, $cor_id = null){
+
+        $sql = 'SELECT cor_id, arquivo, ordem
+                FROM    imagem_produto
+                WHERE   produto_id = ?';
+        
+        $valores = [$produto_id];
+
+        if ($cor_id !== null) {
+            $sql .= ' AND cor_id = ?';
+            $valores[] = $cor_id;
+        }
+
+        $sql .= ' ORDER BY cor_id, ordem';
+
+        $consulta = conexao()->prepare($sql);
+        $consulta->execute($valores);
+
+        return $consulta->fetchAll();
+    }
 }

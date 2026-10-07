@@ -38,7 +38,7 @@ escolha entre o correto e o simples, apresente as duas e deixe ele decidir.
 
 Antes de sugerir qualquer coisa, leia:
 
-- `docs/DECISOES.md` — 41 decisões, com as alternativas descartadas
+- `docs/DECISOES.md` — 42 decisões, com as alternativas descartadas
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo
@@ -79,10 +79,11 @@ atualizado. O que o avaliador pergunta é por que não foi do outro jeito.
       .htaccess    manda tudo para o index.php (só em produção, Apache)
       paginas/     uma por tela
       uploads/     imagens de produto; só as da demonstração são versionadas (D-40)
+      img/         imagens do próprio site, como a de "imagem indisponível" (D-42)
     incluir/     código compartilhado, fora do alcance de URL
       config.php   senha do banco e constantes de negócio (não versionado)
       conexao.php  função conexao(), devolve o PDO
-      funcoes.php  escapar(), dinheiro(), dataHora(), redirecionar(), avisar()
+      funcoes.php  escapar(), dinheiro(), dataHora(), redirecionar(), avisar(), urlImagem()
       modelos.php  lista de require dos modelos
       modelos/     um por tabela, com TODO o SQL e as regras de negócio
       topo.php     começo do HTML; a página define $titulo antes

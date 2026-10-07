@@ -94,7 +94,7 @@ EXPORTAR` e `FIM DA SEÇÃO DE TRABALHO`.
 
 Ainda não começados. Material que já existe pronto para virar slide:
 
-- `DECISOES.md` — 41 decisões com alternativas descartadas; a seção "Alternativas
+- `DECISOES.md` — 42 decisões com alternativas descartadas; a seção "Alternativas
   descartadas" de cada uma responde a "por que não fizeram de outro jeito?"
 - `D-38` — o padrão de projeto adotado (Table Data Gateway, Fowler), com a comparação
   contra modelo único e contra agregados de DDD
@@ -108,7 +108,7 @@ Ainda não começados. Material que já existe pronto para virar slide:
 
 ### DG-01 🟡 Substituir as três imagens de diagrama
 As especificações estão escritas no `TCC.md` (2.1, 2.3.1 e 2.4.1) e conferem com as
-41 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
+42 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
 
 - **2.1 Diagrama geral** — árvore de módulos (8 cadastros, 4 movimentações, 5 relatórios)
 - **2.3 Diagrama de classes** — 13 classes, operações próprias e multiplicidades (Astah)

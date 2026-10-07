@@ -85,3 +85,16 @@ function pegarAviso()
 
     return $aviso;
 }
+
+//Endereço de imagem, se não existe ou recebe null, retorna imagem genérica
+function urlImagem($arquivo) {
+    if ($arquivo === null || $arquivo === '') {
+        return '/img/sem-imagem.jpg';
+    }
+
+    if (! file_exists(__DIR__ . '/../publico/uploads/' . $arquivo)) {
+        return '/img/sem-imagem.jpg';
+    }
+
+    return '/uploads/' . $arquivo;
+}

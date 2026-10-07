@@ -1831,10 +1831,29 @@ vista.
   produtos é instantâneo, com dezenas de milhares seria a resposta de produção. Fora do
   escopo do MVP.
 
+> ⚠️ **Ajustado em 2026-10-07, antes de implementado:**
+>
+> - A assinatura passa a `Produto::listar($filtros = [])`, com as chaves `categoria`, `cor` e
+>   `busca`. Três parâmetros posicionais obrigariam chamadas como `listar(null, $cor_id,
+>   null)`; com o array, cada chamada diz o que filtra, e filtro novo não muda a assinatura.
+>   `isset()` trata a chave ausente e a chave com `null` da mesma forma — sem filtro.
+> - Descartado um método genérico que gerasse as condições a partir de uma lista de
+>   colunas: os três filtros têm formatos de SQL diferentes (igualdade, subconsulta, `LIKE`
+>   em três colunas), e nome de coluna vindo de chave de array teria de ser colado na
+>   consulta — o mesmo problema da lista branca. As chaves ficam escritas dentro do método.
+> - Os links da vitrine são montados por `urlVitrine($categoria_id, $cor_id, $busca)`, em
+>   `funcoes.php`, sobre `http_build_query()`: troca um filtro, mantém os outros, omite os
+>   `null` e codifica `&` e espaço no termo buscado.
+> - A caixa de busca fica no **cabeçalho**, em todas as páginas, e envia sempre para a
+>   vitrine sem carregar os filtros atuais. Buscar no meio do checkout abandona a etapa,
+>   o que o desenho já tolera: a reserva expira em 15 minutos (D-01) e um checkout novo
+>   cancela o pendente (D-31).
+
 **Consequências:**
 
 - `Produto::listar($categoria_id = null, $cor_id = null, $busca = null)` — três filtros
-  opcionais no mesmo formato de condição e valor em par.
+  opcionais no mesmo formato de condição e valor em par. *(Ver o ajuste acima: a assinatura
+  passou a ser um array de filtros.)*
 - Os parênteses em volta dos `OR` da busca de texto são obrigatórios: no SQL o `AND` tem
   precedência, e sem eles o filtro de categoria vazaria sem erro.
 - A collation `utf8mb4_unicode_ci` ignora acento e maiúscula sem código algum — medido:

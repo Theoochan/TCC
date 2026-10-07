@@ -35,8 +35,16 @@ $aviso = pegarAviso();
     <a href="/" class="titulo text-[#f4ecd8] text-2xl font-black tracking-[0.28em]">
         WONNER
     </a>
-
+    
     <nav class="rotulo flex gap-6 text-xs uppercase tracking-[0.16em] text-[#f4ecd8]">
+        <form method="get" action="/">
+            <input 
+                type="search" name="busca"
+                value="<?= escapar($_GET['busca'] ?? '') ?>"
+                placeholder="Buscar"
+                aria-label="Buscar produtos"
+                class="rotulo w-56 bg-transparent border-b border-[#f4ecd8]/50 text-[#f4ecd8] text-xs uppercase tracking-[0.16em] placeholder:text-[#f4ecd8]/60 py-1 focus:outline-none focus:border-[#f4ecd8]">
+        </form>
         <a href="/" class="hover:underline">Loja</a>
         <a href="/sacola" class="hover:underline">Sacola</a>
 

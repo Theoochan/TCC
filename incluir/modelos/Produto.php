@@ -1,22 +1,40 @@
 <?php
 
 class Produto{
-    public static function listar($categoria_id = null){
-        $sql =
-            'SELECT id, nome, valor
-            FROM produto';
+    public static function listar($filtros = []){
+        $sql ='SELECT id, nome, valor FROM produto';
         
+        $condicoes = [];
         $valores = [];
 
-        if($categoria_id !== null){
-            $sql .= ' WHERE categoria_id = ?';
-            $valores[] = $categoria_id;
+        if (isset($filtros['categoria'])){
+            $condicoes[] = 'categoria_id = ?';
+            $valores[] = $filtros['categoria'];
+        }
+
+        if (isset($filtros['cor'])){
+            $condicoes[] = 'id IN (SELECT produto_id FROM produto_cor where cor_id = ?)';
+            $valores[] = $filtros['cor'];
+        }
+
+        if (isset($filtros['busca'])){
+            $condicoes[] = '(nome LIKE ? OR descricao LIKE ? OR modelagem LIKE ?)';
+            $termo = '%' . $filtros['busca'] . '%';
+            $valores[] = $termo;
+            $valores[] = $termo;
+            $valores[] = $termo;
+        }
+
+        // se há condições -> há filtro
+        if(count($condicoes) > 0){
+            $sql .= ' WHERE ' . implode(' AND ', $condicoes);
         }
 
         $sql .= ' ORDER BY nome';
 
         $consulta = conexao()->prepare($sql);
         $consulta->execute($valores);
+
         return $consulta->fetchAll();
     }
     public static function buscar($id){

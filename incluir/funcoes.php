@@ -98,3 +98,18 @@ function urlImagem($arquivo) {
 
     return '/uploads/' . $arquivo;
 }
+
+function urlVitrine($categoria_id, $cor_id, $busca){
+    
+    $parametros = http_build_query([
+        'categoria' => $categoria_id,
+        'cor' => $cor_id,
+        'busca' => $busca
+    ]);
+
+    if ($parametros === '') {
+        return '/';
+    }
+
+    return '/?' . $parametros;
+}

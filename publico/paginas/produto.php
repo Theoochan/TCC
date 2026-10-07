@@ -18,7 +18,7 @@ $foto_pedida = $_GET['foto'] ?? null;
 $coresDisponiveis = Produto::coresDisponiveis($id);
 
 //produtos de mesma categoria
-$mesmaCategoria = Produto::listar($produto['categoria_id']);
+$mesmaCategoria = Produto::listar(['categoria' => $produto['categoria_id']]);
 
 //carrega a cor passada pela url e suas variantes (tamanhos)
 $cor = null;

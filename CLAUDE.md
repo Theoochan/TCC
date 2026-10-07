@@ -83,7 +83,8 @@ atualizado. O que o avaliador pergunta é por que não foi do outro jeito.
     incluir/     código compartilhado, fora do alcance de URL
       config.php   senha do banco e constantes de negócio (não versionado)
       conexao.php  função conexao(), devolve o PDO
-      funcoes.php  escapar(), dinheiro(), dataHora(), redirecionar(), avisar(), urlImagem()
+      funcoes.php  escapar(), dinheiro(), dataHora(), redirecionar(), avisar(),
+                   urlImagem(), urlVitrine()
       modelos.php  lista de require dos modelos
       modelos/     um por tabela, com TODO o SQL e as regras de negócio
       topo.php     começo do HTML; a página define $titulo antes

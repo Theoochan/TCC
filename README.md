@@ -32,7 +32,52 @@ Abra o `incluir/config.php` e ajuste usuário e senha do MySQL.
 mysql -u root -p < docs/ddl.sql
 ```
 
-**3. Subir o site**
+Sobem 13 tabelas, 12 chaves estrangeiras e 14 restrições `CHECK`.
+
+**3. Carregar os dados de demonstração**
+
+```bash
+mysql -u root -p < docs/dml.sql
+```
+
+São as categorias, cores, produtos, variantes, imagens e faixas de frete da
+apresentação. Sem isso o site abre, mas a vitrine fica vazia.
+
+Para recomeçar do zero mais tarde, os três passos cabem num comando só — e
+numa senha só:
+
+```bash
+{ echo "DROP DATABASE IF EXISTS wonner;"; cat docs/ddl.sql docs/dml.sql; } | mysql -u root -p
+```
+
+**4. Definir a senha do administrador**
+
+A conta `admin@wonner.com.br` vem na carga **sem senha válida**: o campo tem um
+texto que não é hash, de modo que a comparação sempre falha e ninguém entra com
+ela. O hash não é versionado de propósito — este repositório é público, e cada
+pessoa gera o seu.
+
+Gere o hash da senha que você escolher:
+
+```bash
+php -r "echo password_hash('a-senha-que-voce-escolher', PASSWORD_DEFAULT), PHP_EOL;"
+```
+
+Copie a linha que sair — começa com `$2y$` — e grave-a **dentro do cliente do
+MySQL**:
+
+```sql
+UPDATE usuario
+   SET senha = 'cole-o-hash-aqui'
+ WHERE email = 'admin@wonner.com.br';
+```
+
+Dentro do cliente, e não por `mysql -e "..."`: o hash tem `$2y$` e `$12$`, que o
+shell tentaria expandir como variáveis em aspas duplas. O hash seria gravado
+truncado, e a tela de login diria apenas "e-mail ou senha inválidos", sem pista
+do motivo.
+
+**5. Subir o site**
 
 ```bash
 php -S localhost:8000 -t publico server.php
@@ -89,7 +134,7 @@ usa `prepare()` e `execute()`, nunca concatenação.
 | Arquivo | Conteúdo |
 |---|---|
 | [docs/TCC.md](docs/TCC.md) | o documento, versão corrente |
-| [docs/DECISOES.md](docs/DECISOES.md) | 37 decisões, com as alternativas descartadas |
+| [docs/DECISOES.md](docs/DECISOES.md) | 43 decisões, com as alternativas descartadas |
 | [docs/PENDENCIAS.md](docs/PENDENCIAS.md) | o que falta decidir |
 | [docs/ENTREGAS.md](docs/ENTREGAS.md) | as onze entregas até o MVP |
 | [docs/ddl.sql](docs/ddl.sql) | criação do banco |

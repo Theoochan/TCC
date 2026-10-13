@@ -1923,6 +1923,63 @@ uma.
 
 ---
 
+## D-43 — A validação do formulário é do modelo, não da página
+**Pendência:** — (decisão de arquitetura) · **Data:** 2026-10-13 · **Complementa:** D-37, D-38
+
+**Contexto:** D-37 fixou que o controlador fica no topo da página, sob a regra "`if` sobre a
+requisição, nunca sobre a regra". Faltava dizer de que lado cai a validação de formulário —
+"o campo está vazio", "o CPF não tem onze dígitos", "este e-mail já está em uso". A pergunta
+ficou concreta ao planejar o cadastro da E3, o primeiro formulário que grava, e a resposta
+vale também para os sete formulários de CRUD da E7.
+
+**Decisão:** a validação inteira fica no **modelo**. A operação recebe os dados da
+requisição e devolve um **array de mensagens de erro — array vazio significa sucesso**. À
+página cabem três coisas: um `if` sobre o método da requisição, a chamada da operação, e um
+`if` sobre o resultado.
+
+```php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $erros = Usuario::cadastrar($_POST);
+
+    if (count($erros) == 0) {
+        avisar('Conta criada. Entre com seu e-mail e senha.');
+        redirecionar('/entrar');
+    }
+}
+```
+
+Havendo erros, a página os exibe e repreenche os campos com o que foi digitado.
+
+**Alternativas descartadas:**
+
+- *Validar na página, deixando ao modelo apenas a gravação.* É o caminho que parece natural,
+  já que o formulário chega pela requisição. Descartada porque a validação **não é
+  divisível**: "este CPF já está cadastrado" exige `SELECT`, e SQL na página é proibido — de
+  modo que parte das regras ficaria na página e parte no modelo, sem um lugar único para
+  procurar quando o formulário recusasse indevidamente. Some-se que a página passaria a ter
+  uma dúzia de `if` antes da única chamada ao modelo, contrariando "cada página chama uma
+  operação".
+- *Classe de validação separada, com as regras declaradas por campo.* É o que os frameworks
+  oferecem. Custa uma camada e um vocabulário novo — regras escritas como texto, mensagens
+  indexadas por chave — para um ganho que só aparece com muitos formulários semelhantes; e
+  as regras que dependem do banco continuariam fora dela.
+- *Lançar exceção a cada erro encontrado.* Interrompe no primeiro, de modo que o usuário
+  corrige um campo por vez, recarregando a página a cada tentativa.
+
+**Consequências:**
+
+- Toda operação de gravação do sistema passa a ter a mesma assinatura: recebe o array da
+  requisição, devolve o array de erros.
+- Regras de formato e regras que dependem do banco — unicidade de CPF e de e-mail — ficam
+  lado a lado, no mesmo método.
+- As mensagens são **texto corrido, não marcação**: a regra "nenhum HTML nos modelos"
+  continua valendo integralmente.
+- A página repreenche os campos a partir de `$_POST`, e todo valor repreenchido passa por
+  `escapar()`.
+- Vale para a E3 e para os sete formulários da E7.
+
+---
+
 ## Fora de escopo
 
 Recursos avaliados e deliberadamente não incluídos. Estar aqui é uma escolha defendida,
@@ -1953,6 +2010,7 @@ não tem X?" de virar uma falha.
 | Tela de detalhe do pedido para o cliente | A lista com estado e código de rastreio cobre a necessidade. (D-11) |
 | Log de auditoria das ações do administrador | Apenas as datas das transições de estado são registradas. (D-12) |
 | DaisyUI | Biblioteca de componentes com aparência própria, que seria sobrescrita pela identidade visual da marca. (D-32) |
+| Preenchimento automático do endereço pelo CEP | Exigiria consulta a serviço externo dentro do cadastro, com a falha e a demora dele; e, sem JavaScript, um botão que recarrega a página no meio do formulário. Nenhum RF pede, e o D-04 já evitara serviço externo para o frete. (D-04, RF001) |
 
 _Não confundir com a **fase 3** (D-10, D-15): itens desta tabela não serão feitos; os da
 fase 3 são requisitos de prioridade "Desejável", reconhecidos e postergados._

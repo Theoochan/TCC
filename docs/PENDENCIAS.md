@@ -37,6 +37,7 @@ Responsáveis: **Igor** — documento, diagramas e slides · **Felipe** — cód
 | `DOC-03` | Igor | ⚪ | Escrever a seção 4.1 — protótipo | telas prontas (E9) |
 | `DOC-07` | Igor | 🟡 | Slides da apresentação | documento fechado |
 | `DS-01` | Felipe | 🟡 | Aplicar nas telas `.dc.html` as correções de escopo | — |
+| `DOC-08` | Felipe | 🟡 | Escrever o texto dos termos de consentimento (LGPD) e publicá-lo em `/termos` | — |
 
 Os quatro primeiros não dependem de nada e podem começar hoje.
 
@@ -94,7 +95,7 @@ EXPORTAR` e `FIM DA SEÇÃO DE TRABALHO`.
 
 Ainda não começados. Material que já existe pronto para virar slide:
 
-- `DECISOES.md` — 42 decisões com alternativas descartadas; a seção "Alternativas
+- `DECISOES.md` — 43 decisões com alternativas descartadas; a seção "Alternativas
   descartadas" de cada uma responde a "por que não fizeram de outro jeito?"
 - `D-38` — o padrão de projeto adotado (Table Data Gateway, Fowler), com a comparação
   contra modelo único e contra agregados de DDD
@@ -108,7 +109,7 @@ Ainda não começados. Material que já existe pronto para virar slide:
 
 ### DG-01 🟡 Substituir as três imagens de diagrama
 As especificações estão escritas no `TCC.md` (2.1, 2.3.1 e 2.4.1) e conferem com as
-42 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
+43 decisões. Falta reproduzi-las nas ferramentas e trocar os PNG em `docs/diagramas/`:
 
 - **2.1 Diagrama geral** — árvore de módulos (8 cadastros, 4 movimentações, 5 relatórios)
 - **2.3 Diagrama de classes** — 13 classes, operações próprias e multiplicidades (Astah)
@@ -129,6 +130,20 @@ identidade. E acrescentar ao texto da seção a frase que liga diagrama e códig
 A seção 2.2 tem apenas o parágrafo teórico, e a 1.4.1 afirma que cada requisito "inclui
 o caso de uso associado" — nenhum RF cita. Com os 16 RF definidos, é montável.
 **Fazer:** desenhar o diagrama e associar cada RF ao seu caso de uso.
+
+---
+
+## Documento e telas (Felipe)
+
+### DOC-08 🟡 Texto dos termos de consentimento
+
+O `D-20` grava `usuario.consentimento_em` e `usuario.versao_termos` para **provar** o
+consentimento, como a LGPD exige. A constante `TERMOS_VERSAO` já existe em `config.php` e é
+gravada no cadastro, mas o texto da versão não existe — hoje se registra aceite a um
+documento que não pode ser exibido.
+
+**Fazer:** escrever o texto, publicá-lo na rota `/termos`, e ligar o link ao checkbox do
+cadastro. Enquanto não existir, o D-20 está cumprido só pela metade.
 
 ---
 

@@ -40,3 +40,7 @@ const PARCELA_MINIMA = 50.00;
 
 // D-18: prazo de arrependimento em dias corridos (CDC art. 49).
 const ARREPENDIMENTO_DIAS = 7;
+
+// D-20: versão dos termos aceitos no cadastro, gravada em usuario.versao_termos.
+// O texto da versão ainda não existe — pendência DOC-08.
+const TERMOS_VERSAO = '1.0';

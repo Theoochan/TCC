@@ -62,7 +62,7 @@ funcionando.
 | | |
 |---|---|
 | **Requisitos** | RF007 catálogo · RF010 detalhe do produto · RF005 busca |
-| **Models** | Categoria, Produto, Cor, ProdutoCor, VarianteProduto, ImagemProduto |
+| **Models** | Categoria, Produto, Cor, ProdutoCor, VarianteProduto |
 
 - [x] **Vitrine única**, com a categoria aplicada como filtro em `/?categoria=N` (D-39)
 - [x] Página de produto: ficha com nome, preço, descrição, composição, cuidados e envio
@@ -242,6 +242,19 @@ reais.
   checkout, sobre
 - Responsividade
 - Estados vazios: sacola vazia, busca sem resultado, nenhum pedido
+
+**Camada de JavaScript (Alpine.js, NF001 e D-32).** Até aqui tudo funciona por recarga, e
+a loja inteira funciona sem JavaScript — propriedade a preservar. O Alpine entra **por
+cima** do que já existe, sem substituir nenhuma página:
+
+- Troca de cor na página de produto, sem recarga (hoje recarrega — E2)
+- Galeria como carrossel, com as setas e o zoom do desenho (hoje é foto principal mais
+  miniaturas, por recarga — D-42)
+- **Entrar em janela sobre a página atual**, em vez de navegar para `/entrar`. A página
+  continua existindo como destino e como alternativa sem JavaScript; a janela é a camada
+  de cima. Sem Alpine isso exigiria a marcação da janela no `topo.php`, campo escondido
+  com a página de origem e o erro viajando pela sessão — mais código que a própria tela,
+  e descartável quando o Alpine chegasse
 
 **Demonstra:** a loja parece a Wonner, não HTML sem estilo.
 

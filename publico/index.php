@@ -31,10 +31,11 @@ $rotas = [
     '/'          => 'paginas/home.php',
 
     // As demais entram conforme as entregas:
-     '/produto'   => 'paginas/produto.php',
+    '/produto'   => 'paginas/produto.php',
     // '/busca'     => 'paginas/busca.php',
     // '/sacola'    => 'paginas/sacola.php',
-    // '/entrar'    => 'paginas/entrar.php',
+    '/entrar'    => 'paginas/entrar.php',
+    '/sair' => 'paginas/sair.php',
     // '/cadastro'  => 'paginas/cadastro.php',
     // '/pedidos'   => 'paginas/pedidos.php',
 

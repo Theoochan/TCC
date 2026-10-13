@@ -25,5 +25,5 @@ require __DIR__ . '/modelos/Cor.php';
 // require __DIR__ . '/modelos/Pagamento.php';
 
 //Conta e apoio
-// require __DIR__ . '/modelos/Usuario.php';
+require __DIR__ . '/modelos/Usuario.php';
 // require __DIR__ . '/modelos/FaixaFrete.php';

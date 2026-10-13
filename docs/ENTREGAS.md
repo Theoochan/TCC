@@ -100,14 +100,14 @@ selecionável.
 | **Requisitos** | RF001 cadastro e autenticação |
 | **Models** | Usuario |
 
-- Cadastro com CPF, telefone, endereço e **registro do consentimento** (data, hora, versão
+- [ ] Cadastro com CPF, telefone, endereço e **registro do consentimento** (data, hora, versão
   dos termos — D-20)
-- Login e logout com `password_hash` / `password_verify`
-- Token anti-CSRF nos formulários; as funções de sessão ficam em `incluir/funcoes.php`
-- `session_regenerate_id(true)` no login
-- Verificação de papel: as rotas iniciadas por `/admin` exigem `papel = 'admin'`, pela
+- [ ] Login e logout com `password_hash` / `password_verify`
+- [ ] Token anti-CSRF nos formulários; as funções de sessão ficam em `incluir/funcoes.php`
+- [ ] `session_regenerate_id(true)` no login
+- [ ] Verificação de papel: as rotas iniciadas por `/admin` exigem `papel = 'admin'`, pela
   verificação que o `index.php` já faz com `incluir/protegido-admin.php`
-- Verificação de situação: `inativo` e `anonimizado` não acessam
+- [ ] Verificação de situação: `inativo` e `anonimizado` não acessam
 
 **Demonstra:** criar conta, sair, entrar de novo; tentar abrir uma rota de administração
 como comprador e receber 403.
@@ -124,11 +124,11 @@ CPF duplicado é recusado pela restrição de unicidade.
 | **Requisitos** | RF003 inserir itens · RF002 calcular valores |
 | **Models** | CarrinhoItem |
 
-- Adicionar variante com quantidade; a mesma variante **soma** em vez de duplicar
-- Alterar quantidade e remover item
-- Carrinho **persistente**: sobrevive a logout e a novos acessos (D-09)
-- Exibe o preço **vigente** do catálogo, sem congelar nada
-- Contador de itens no cabeçalho
+- [ ] Adicionar variante com quantidade; a mesma variante **soma** em vez de duplicar
+- [ ] Alterar quantidade e remover item
+- [ ] Carrinho **persistente**: sobrevive a logout e a novos acessos (D-09)
+- [ ] Exibe o preço **vigente** do catálogo, sem congelar nada
+- [ ] Contador de itens no cabeçalho
 
 **Demonstra:** adicionar peças, sair, voltar no dia seguinte e encontrar a sacola como
 estava.
@@ -147,30 +147,30 @@ comportamento correto, e é o contraste com o que acontece no pedido.
 | **Requisitos** | RF004 realizar compra · RF008 confirmar pagamento |
 | **Models** | Venda, VendaItem, Pagamento |
 
-- Iniciar checkout: cancelar o pendente anterior (D-31), copiar os itens do carrinho,
+- [ ] Iniciar checkout: cancelar o pendente anterior (D-31), copiar os itens do carrinho,
   **congelar** o subtotal, copiar o endereço, calcular o frete pela faixa de CEP, gravar
   `reserva_expira_em` com 15 minutos
-- **Verificação de disponibilidade sob bloqueio da variante** (regra 10) — sem isso, dois
+- [ ] **Verificação de disponibilidade sob bloqueio da variante** (regra 10) — sem isso, dois
   clientes simultâneos reservam a mesma peça
-- Seleção de método e de parcelas, com o teto calculado pelo valor do pedido (D-03)
-- `GatewayFake` **assíncrono**: cria o pagamento em `aguardando` e devolve um identificador
+- [ ] Seleção de método e de parcelas, com o teto calculado pelo valor do pedido (D-03)
+- [ ] `GatewayFake` **assíncrono**: cria o pagamento em `aguardando` e devolve um identificador
   externo (D-06)
-- Ação de confirmação **idempotente**, chamada tanto pelo botão de simulação quanto,
+- [ ] Ação de confirmação **idempotente**, chamada tanto pelo botão de simulação quanto,
   na fase 2, pelo webhook — mesmo método (D-06)
-- Na confirmação: baixa de estoque e mudança de situação **na mesma transação** (regra 8),
+- [ ] Na confirmação: baixa de estoque e mudança de situação **na mesma transação** (regra 8),
   e os itens comprados saem do carrinho
-- Rotina de expiração: script que leva a `expirado` as vendas com reserva vencida e libera
+- [ ] Rotina de expiração: script que leva a `expirado` as vendas com reserva vencida e libera
   as reservas
-- Cronômetro visível no checkout
+- [ ] Cronômetro visível no checkout
 
 **Demonstra:** comprar de ponta a ponta; deixar expirar e ver o estoque voltar; recusar o
 pagamento e tentar de novo, com as duas tentativas registradas.
 
 **Verificar:**
-- disparar a confirmação duas vezes com o mesmo identificador externo → o estoque baixa uma
+- [ ] disparar a confirmação duas vezes com o mesmo identificador externo → o estoque baixa uma
   vez só
-- abrir dois checkouts do mesmo cliente → o primeiro fica `cancelado`
-- com uma peça em estoque, dois clientes tentando ao mesmo tempo → um recebe erro claro
+- [ ] abrir dois checkouts do mesmo cliente → o primeiro fica `cancelado`
+- [ ] com uma peça em estoque, dois clientes tentando ao mesmo tempo → um recebe erro claro
 
 ---
 
@@ -180,8 +180,8 @@ pagamento e tentar de novo, com as duas tentativas registradas.
 |---|---|
 | **Requisitos** | RF011 consultar pedidos |
 
-- Lista dos pedidos do cliente, mais recente primeiro, com a situação
-- Código de rastreio exibido junto da situação, quando houver (D-11)
+- [ ] Lista dos pedidos do cliente, mais recente primeiro, com a situação
+- [ ] Código de rastreio exibido junto da situação, quando houver (D-11)
 
 **Demonstra:** o cliente entra e vê o pedido que acabou de pagar.
 
@@ -194,13 +194,13 @@ pagamento e tentar de novo, com as duas tentativas registradas.
 | **Requisitos** | RF012 gerenciar cadastros · RF009 faixas de frete · RF016 entrada de estoque |
 | **Models** | FaixaFrete, EntradaEstoque |
 
-- CRUD de categoria, produto, variante, imagens, faixas de frete e usuários, com as
+- [ ] CRUD de categoria, produto, variante, imagens, faixas de frete e usuários, com as
   operações da seção 1.4.3
-- Upload de imagem de variante, com ordenação
-- Validação de **sobreposição** entre faixas de CEP (regra 3)
-- Tela de entrada de estoque aceitando **várias variantes do mesmo produto numa submissão**
+- [ ] Upload de imagem de variante, com ordenação
+- [ ] Validação de **sobreposição** entre faixas de CEP (regra 3)
+- [ ] Tela de entrada de estoque aceitando **várias variantes do mesmo produto numa submissão**
   (RF016) — P, M, G, GG de uma vez
-- Redefinição de senha não existe: o MVP aceita a perda de conta (D-15)
+- [ ] Redefinição de senha não existe: o MVP aceita a perda de conta (D-15)
 
 **Demonstra:** cadastrar um produto do zero — categoria, produto, três variantes, imagens,
 estoque — e ele aparece na vitrine.
@@ -217,10 +217,10 @@ e a mensagem explica que se deve inativar.
 | **Requisitos** | RF013 processar pedido |
 | **Fecha no documento** | seção 4.4 (consultas dos relatórios) |
 
-- Fila de pedidos pagos, com avanço de situação: separado → enviado → entregue
-- Registro do código de rastreio, obrigatório para enviar (garantido por `CHECK`)
-- Registro de cancelamento e devolução (D-18)
-- Os **cinco relatórios** de D-17, cada um com sua consulta SQL — que é também o conteúdo
+- [ ] Fila de pedidos pagos, com avanço de situação: separado → enviado → entregue
+- [ ] Registro do código de rastreio, obrigatório para enviar (garantido por `CHECK`)
+- [ ] Registro de cancelamento e devolução (D-18)
+- [ ] Os **cinco relatórios** de D-17, cada um com sua consulta SQL — que é também o conteúdo
   da seção 4.4
 
 **Demonstra:** levar um pedido de `pago` a `entregue`; abrir os cinco relatórios com dados
@@ -237,20 +237,20 @@ reais.
 |---|---|
 | **Fecha pendências** | DS-01 |
 
-- Aplicar as correções de DS-01 nas telas de design antes de traduzi-las
-- Traduzir as quatro telas para as páginas de `publico/paginas/`: homepage, produto,
+- [ ] Aplicar as correções de DS-01 nas telas de design antes de traduzi-las
+- [ ] Traduzir as quatro telas para as páginas de `publico/paginas/`: homepage, produto,
   checkout, sobre
-- Responsividade
-- Estados vazios: sacola vazia, busca sem resultado, nenhum pedido
+- [ ] Responsividade
+- [ ] Estados vazios: sacola vazia, busca sem resultado, nenhum pedido
 
 **Camada de JavaScript (Alpine.js, NF001 e D-32).** Até aqui tudo funciona por recarga, e
 a loja inteira funciona sem JavaScript — propriedade a preservar. O Alpine entra **por
 cima** do que já existe, sem substituir nenhuma página:
 
-- Troca de cor na página de produto, sem recarga (hoje recarrega — E2)
-- Galeria como carrossel, com as setas e o zoom do desenho (hoje é foto principal mais
+- [ ] Troca de cor na página de produto, sem recarga (hoje recarrega — E2)
+- [ ] Galeria como carrossel, com as setas e o zoom do desenho (hoje é foto principal mais
   miniaturas, por recarga — D-42)
-- **Entrar em janela sobre a página atual**, em vez de navegar para `/entrar`. A página
+- [ ] **Entrar em janela sobre a página atual**, em vez de navegar para `/entrar`. A página
   continua existindo como destino e como alternativa sem JavaScript; a janela é a camada
   de cima. Sem Alpine isso exigiria a marcação da janela no `topo.php`, campo escondido
   com a página de origem e o erro viajando pela sessão — mais código que a própria tela,
@@ -268,11 +268,11 @@ Corre em paralelo, não depende de código.
 |---|---|
 | **Fecha pendências** | DG-01, DG-02 |
 
-- Redesenhar os três diagramas (2.1, 2.3, 2.4) no Astah e no Workbench
-- Desenhar o diagrama de casos de uso (2.2) e associar cada RF ao seu caso de uso
-- Seção 3 (interfaces de vídeo e impressas) — capturas das telas prontas
-- Seção 4.1 (protótipo)
-- Seção 5 (referências) — as sete citações usadas no texto
+- [ ] Redesenhar os três diagramas (2.1, 2.3, 2.4) no Astah e no Workbench
+- [ ] Desenhar o diagrama de casos de uso (2.2) e associar cada RF ao seu caso de uso
+- [ ] Seção 3 (interfaces de vídeo e impressas) — capturas das telas prontas
+- [ ] Seção 4.1 (protótipo)
+- [ ] Seção 5 (referências) — as sete citações usadas no texto
 
 ---
 

@@ -93,21 +93,24 @@ selecionável.
 
 ---
 
-## E3 — Contas · M ⬜
+## E3 — Contas · M ✅
 
 | | |
 |---|---|
 | **Requisitos** | RF001 cadastro e autenticação |
 | **Models** | Usuario |
 
-- [ ] Cadastro com CPF, telefone, endereço e **registro do consentimento** (data, hora, versão
-  dos termos — D-20)
-- [ ] Login e logout com `password_hash` / `password_verify`
-- [ ] Token anti-CSRF nos formulários; as funções de sessão ficam em `incluir/funcoes.php`
-- [ ] `session_regenerate_id(true)` no login
-- [ ] Verificação de papel: as rotas iniciadas por `/admin` exigem `papel = 'admin'`, pela
-  verificação que o `index.php` já faz com `incluir/protegido-admin.php`
-- [ ] Verificação de situação: `inativo` e `anonimizado` não acessam
+- [x] Cadastro com CPF, telefone, endereço e **registro do consentimento** (data, hora, versão
+  dos termos — D-20). Validação no modelo, em `validarCadastro`, `validarCpf` (dígito
+  verificador) e `validarEmail` (D-43); o texto dos termos ainda é rascunho (DOC-08)
+- [x] Login e logout com `password_hash` / `password_verify`
+- [x] Token anti-CSRF: o formulário leva o campo escondido, e o `index.php` confere todo
+  `POST` antes de carregar a página; "Sair" passou a ser `POST` (D-44)
+- [x] `session_regenerate_id(true)` no login
+- [x] Verificação de papel: as rotas iniciadas por `/admin` exigem `papel = 'admin'`, pela
+  verificação que o `index.php` já faz com `incluir/protegido-admin.php`. Exercitada pela
+  página provisória do painel, `paginas/admin/inicio.php`, cujo conteúdo chega na E7
+- [x] Verificação de situação: `inativo` e `anonimizado` não acessam
 
 **Demonstra:** criar conta, sair, entrar de novo; tentar abrir uma rota de administração
 como comprador e receber 403.
@@ -281,9 +284,9 @@ Corre em paralelo, não depende de código.
 ```
 E0 ✅ ──> E1 ✅ ──> E2 ✅ ──────────> E9
                  │
-                 └──> E3 ──> E4 ──> E5 ──> E6
-                              │      │
-                              └──────┴───> E7 ──> E8
+                 └──> E3 ✅ ──> E4 ──> E5 ──> E6
+                                 │      │
+                                 └──────┴───> E7 ──> E8
 
 E10 corre em paralelo, a qualquer momento
 ```

@@ -21,6 +21,20 @@ require __DIR__ . '/../incluir/modelos.php';
 session_start();
 
 
+// ── Proteção contra CSRF ────────────────────────────────────────
+// Todo POST precisa trazer o token que a página desenhou no formulário.
+// Feita aqui, antes de qualquer página carregar, pelo mesmo motivo da
+// verificação de acesso: nenhum formulário depende de lembrar de conferir.
+// E antes da página também porque, se viesse depois, a página poderia
+// criar o token e passar no próprio teste.
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && tokenValido() === false) {
+    http_response_code(403);
+    require __DIR__ . '/paginas/403.php';
+    exit;
+}
+
+
 // ── Rotas ───────────────────────────────────────────────────────
 // Liga o endereço ao arquivo da página. Para criar uma tela nova,
 // acrescente uma linha aqui e crie o arquivo em paginas/.
@@ -36,11 +50,12 @@ $rotas = [
     // '/sacola'    => 'paginas/sacola.php',
     '/entrar'    => 'paginas/entrar.php',
     '/sair' => 'paginas/sair.php',
-    // '/cadastro'  => 'paginas/cadastro.php',
+    '/cadastro'  => 'paginas/cadastro.php',
+    '/termos'    => 'paginas/termos.php',
     // '/pedidos'   => 'paginas/pedidos.php',
 
     // Painel
-    // '/admin'           => 'paginas/admin/inicio.php',
+    '/admin'           => 'paginas/admin/inicio.php',
     // '/admin/produtos'  => 'paginas/admin/produtos.php',
 ];
 

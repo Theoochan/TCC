@@ -29,7 +29,9 @@ $aviso = pegarAviso();
         .rotulo  { font-family: 'Oswald', Arial, sans-serif; }
     </style>
 </head>
-<body class="bg-[#f4ecd8] text-[#0f1e3d]">
+<!-- min-h-screen + flex-col, junto com o flex-1 do <main>: o conteúdo ocupa
+     o espaço que sobra, e o rodapé fica no fim da tela mesmo em página curta. -->
+<body class="bg-[#f4ecd8] text-[#0f1e3d] min-h-screen flex flex-col">
 
 <header class="bg-[#0f1e3d] px-8 py-5 flex flex-wrap items-baseline justify-between gap-x-8 gap-y-4">
     <a href="/" class="titulo text-[#f4ecd8] text-2xl font-black tracking-[0.28em]">
@@ -53,14 +55,23 @@ $aviso = pegarAviso();
             <?php if (ehAdmin()): ?>
                 <a href="/admin" class="hover:underline">Painel</a>
             <?php endif; ?>
-            <a href="/sair" class="hover:underline">Sair</a>
+            <!-- Sair é POST, não link: link pode ser disparado por outro site
+                 com uma simples <img>. Como POST, passa pela verificação de
+                 CSRF do index.php. O botão imita os links ao lado. -->
+            <form method="post" action="/sair">
+                <input type="hidden" name="token" value="<?= escapar(tokenCsrf()) ?>">
+                <button type="submit"
+                        class="uppercase tracking-[0.16em] cursor-pointer hover:underline">
+                    Sair
+                </button>
+            </form>
         <?php else: ?>
             <a href="/entrar" class="hover:underline">Entrar</a>
         <?php endif; ?>
     </nav>
 </header>
 
-<main class="max-w-3xl mx-auto px-6 pt-14 pb-24">
+<main class="w-full flex-1 max-w-3xl mx-auto px-6 pt-14 pb-24">
 
 <?php if ($aviso): ?>
     <p class="bg-[#e8dcc0] border-l-[3px] border-[#a63a2a] px-4 py-3 mb-8">

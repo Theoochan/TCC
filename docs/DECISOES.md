@@ -1977,6 +1977,60 @@ Havendo erros, a página os exibe e repreenche os campos com o que foi digitado.
 - A página repreenche os campos a partir de `$_POST`, e todo valor repreenchido passa por
   `escapar()`.
 - Vale para a E3 e para os sete formulários da E7.
+- **No cadastro, a validação se divide em três métodos de `Usuario`**: `validarCadastro()`
+  confere e limpa o formulário inteiro, devolvendo `erros` e `dados` separados; para os
+  dois campos que dependem do banco, chama `validarCpf()` e `validarEmail()`, que conferem
+  formato **e** duplicidade. O `cadastrar()` apenas chama o primeiro e grava — sem
+  desempacotar campo por campo. A página conhece só o `cadastrar()`.
+- **O cadastro revela se um e-mail ou CPF já tem conta**, ao recusar a duplicidade com
+  mensagem própria. A mitigação usual — aceitar sempre e avisar o dono por e-mail —
+  depende de envio de e-mail, fora do MVP (D-14). A mensagem única do login continua
+  valendo: ela ainda esconde se a falha foi de senha ou de conta inativa.
+
+---
+
+## D-44 — Verificação de CSRF no ponto de entrada, e ação que altera estado só por POST
+**Pendência:** — (decisão de arquitetura) · **Data:** 2026-10-19 · **Complementa:** D-30, D-37
+
+**Contexto:** o token anti-CSRF é uma das cinco proteções que o D-30 tornou responsabilidade
+explícita da aplicação. Ao implementá-lo na E3, ficou a escolher **onde** o token é
+conferido — e, por consequência, como tratar as ações que hoje são simples links.
+
+**Decisão:**
+
+1. O token é gerado por `tokenCsrf()` e conferido por `tokenValido()`, ambas em
+   `incluir/funcoes.php`. O token é sorteado com `random_bytes`, guardado na sessão e
+   comparado com `hash_equals`, que não vaza o valor por diferença de tempo.
+2. A conferência acontece **no `index.php`**, logo após o `session_start()` e antes de
+   qualquer página carregar: todo `POST` sem token válido recebe 403. Cada formulário só
+   precisa conter o campo escondido.
+3. **Ação que altera estado é `POST`, nunca link.** O "Sair" do cabeçalho passou de link a
+   formulário com botão, e `sair.php` recusa `GET`.
+
+**Alternativas descartadas:**
+
+- *Conferir o token em cada página que recebe formulário.* Permitiria mensagem própria e
+  preservaria o que foi digitado quando o token expira. Descartada porque cada formulário
+  novo precisaria lembrar da conferência — e a E7 traz sete. Esquecer uma é falha de
+  segurança silenciosa; perder um formulário por inatividade é incômodo visível e raro. É o
+  mesmo argumento que já pôs a verificação de acesso no `index.php` (D-37).
+- *Conferir depois de carregar a página.* Uma página que desenhasse o formulário antes da
+  conferência criaria o token e passaria no próprio teste.
+- *Manter "Sair" como link.* Link é `GET`, e a conferência só alcança `POST`: qualquer site
+  deslogaria o usuário com um `<img src="/sair">`. O dano é pequeno, mas é o exemplo
+  clássico do ataque, e deixá-lo funcionando desmentiria a proteção.
+- *Comparar o token com `===`.* Funciona, mas responde mais rápido quando o erro está no
+  começo do valor, o que em tese permite descobri-lo por medição. `hash_equals` custa a
+  mesma linha.
+
+**Consequências:**
+
+- Todo formulário que grava contém `<input type="hidden" name="token" value="...">` — e
+  nada mais: a conferência é automática.
+- Quem deixa um formulário aberto além da validade da sessão (24 minutos sem atividade, pela
+  configuração padrão do PHP) e envia recebe 403 e perde o que digitou.
+- Daqui em diante, toda ação que altera dados é `POST` — vale para "remover item da sacola"
+  na E4 e para toda ação do painel na E7.
 
 ---
 

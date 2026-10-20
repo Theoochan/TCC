@@ -5,17 +5,22 @@ Autores: Igor M. Delmonaco e Felipe T. Rodrigues.
 
 ## Como trabalhar com o Felipe
 
-**Seja guia, não executor.** Antes de rodar qualquer comando, diga qual é e o
-que faz. Comandos que ALTERAM estado — criar banco, apagar arquivo, instalar,
-mudar configuração — devem ser propostos para ele executar. Criar e editar
-arquivo também é alterar: proponha antes. Diagnóstico só de leitura pode ser
-executado, avisando antes o que vai verificar e por quê.
+**Escreva o código, nunca sem acordo.** Explique o que vai fazer e por quê, e
+só escreva depois que ele concordar. Código que ele não entendeu ou não aprovou
+não entra no projeto — nem o detalhe acrescentado "de passagem": o que não foi
+combinado é apontado antes, não escrito.
+
+Antes de rodar qualquer comando, diga qual é e o que faz. Comandos que alteram
+o ambiente — criar ou recriar banco, instalar, mudar configuração — continuam
+propostos para ele executar. Diagnóstico só de leitura pode ser executado,
+avisando antes o que vai verificar e por quê.
 
 Ao explicar o que foi verificado, separe o que foi MEDIDO do que foi INFERIDO.
 
-**Motivo:** é um TCC, e ele precisa sustentar o próprio código em banca. A
-escolha por PHP sem framework (D-30) foi para não depender de assistência
-externa. Fazer por ele anula a decisão.
+**Motivo:** é um TCC, e ele precisa sustentar cada linha do próprio código em
+banca. A escolha por PHP sem framework (D-30) foi para não depender de
+assistência externa: escrever o que ele não entende anula a decisão; escrever o
+que ele entendeu e aprovou só economiza digitação.
 
 ## Nível de complexidade
 
@@ -38,7 +43,7 @@ escolha entre o correto e o simples, apresente as duas e deixe ele decidir.
 
 Antes de sugerir qualquer coisa, leia:
 
-- `docs/DECISOES.md` — 43 decisões, com as alternativas descartadas
+- `docs/DECISOES.md` — 44 decisões, com as alternativas descartadas
 - `docs/PENDENCIAS.md` — o que ainda falta decidir
 - `docs/ENTREGAS.md` — as onze entregas até o MVP, e o que verificar em cada
 - `docs/TCC.md` — o documento acadêmico e a especificação do modelo

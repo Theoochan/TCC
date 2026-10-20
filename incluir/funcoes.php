@@ -113,3 +113,52 @@ function urlVitrine($categoria_id, $cor_id, $busca){
 
     return '/?' . $parametros;
 }
+
+
+//Número secreto desta sessão, usado para provar que o formulário saiu de
+//uma página nossa. É criado na primeira vez que um formulário é desenhado
+//e reaproveitado depois — inclusive quando o formulário é redesenhado com erro.
+function tokenCsrf(){
+    if (! isset($_SESSION['token_csrf'])) {
+        $_SESSION['token_csrf'] = bin2hex(random_bytes(32));
+    }
+
+    return $_SESSION['token_csrf'];
+}
+
+
+//Confere o token que veio no formulário contra o guardado na sessão.
+//hash_equals compara em tempo constante: não responde mais rápido
+//quando o erro está no começo, e por isso não vaza o token por medição.
+function tokenValido(){
+    if (! isset($_SESSION['token_csrf'])) {
+        return false;
+    }
+
+    if (! isset($_POST['token'])) {
+        return false;
+    }
+
+    return hash_equals($_SESSION['token_csrf'], $_POST['token']);
+}
+
+
+//Deixa só os dígitos: "123.456.789-09" vira "12345678909".
+//O padrão /[^0-9]/ quer dizer "qualquer caractere que NÃO seja de 0 a 9";
+//cada um que casar é trocado por nada.
+function apenasDigitos($texto){
+    return preg_replace('/[^0-9]/', '', $texto);
+}
+
+
+//As 27 unidades da federação. A página de cadastro desenha o <select> com
+//esta lista, e o modelo confere o que chegou contra ela: o navegador pode
+//enviar qualquer valor, inclusive um que o <select> não oferecia.
+//Fica aqui, e não num modelo, porque venda também tem uf (E5).
+function listaUfs(){
+    return [
+        'AC', 'AL', 'AM', 'AP', 'BA', 'CE', 'DF', 'ES', 'GO',
+        'MA', 'MG', 'MS', 'MT', 'PA', 'PB', 'PE', 'PI', 'PR',
+        'RJ', 'RN', 'RO', 'RR', 'RS', 'SC', 'SE', 'SP', 'TO',
+    ];
+}

@@ -143,6 +143,25 @@ function tokenValido(){
 }
 
 
+//Guarda a página atual, para voltar a ela depois do login.
+//Só é chamada em rotas que nós escolhemos, então o valor sempre começa
+//pelo caminho delas — /produto, /sacola, /admin — e nunca aponta para fora.
+//Por estar na sessão, e não na URL, ninguém de fora consegue escrevê-lo.
+function lembrarPagina(){
+    $_SESSION['voltar'] = $_SERVER['REQUEST_URI'];
+}
+
+
+//Lê a página guardada e a apaga, para não ser usada duas vezes — o mesmo
+//desenho do avisar() e do pegarAviso(). Sem página guardada, devolve a inicial.
+function paginaLembrada(){
+    $pagina = $_SESSION['voltar'] ?? '/';
+    unset($_SESSION['voltar']);
+
+    return $pagina;
+}
+
+
 //Deixa só os dígitos: "123.456.789-09" vira "12345678909".
 //O padrão /[^0-9]/ quer dizer "qualquer caractere que NÃO seja de 0 a 9";
 //cada um que casar é trocado por nada.

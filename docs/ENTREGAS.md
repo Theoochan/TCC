@@ -120,14 +120,17 @@ CPF duplicado é recusado pela restrição de unicidade.
 
 ---
 
-## E4 — Carrinho · M ⬜
+## E4 — Carrinho · M 🔄
 
 | | |
 |---|---|
 | **Requisitos** | RF003 inserir itens · RF002 calcular valores |
 | **Models** | CarrinhoItem |
 
-- [ ] Adicionar variante com quantidade; a mesma variante **soma** em vez de duplicar
+- [x] Adicionar variante com quantidade; a mesma variante **soma** em vez de duplicar.
+  Tamanho escolhido por rádio, sem JavaScript; a quantidade total na sacola não passa do
+  disponível, conferido por `VarianteProduto::quantidadeDisponivel()`; visitante sem login
+  vê "Entre para comprar" e volta ao produto depois de entrar
 - [ ] Alterar quantidade e remover item
 - [ ] Carrinho **persistente**: sobrevive a logout e a novos acessos (D-09)
 - [ ] Exibe o preço **vigente** do catálogo, sem congelar nada
@@ -199,7 +202,11 @@ pagamento e tentar de novo, com as duas tentativas registradas.
 
 - [ ] CRUD de categoria, produto, variante, imagens, faixas de frete e usuários, com as
   operações da seção 1.4.3
-- [ ] Upload de imagem de variante, com ordenação
+- [ ] Upload de imagem por produto e cor, com ordenação — a galeria pertence a `produto_cor`,
+  não à variante (D-33, D-36)
+- [ ] Produto sem nenhuma combinação produto-cor responde **404** na página de produto. Hoje
+  a página supõe pelo menos uma cor e quebra no bloco de cor; o caso só passa a ser possível
+  quando o painel permitir cadastrar produto antes de suas cores
 - [ ] Validação de **sobreposição** entre faixas de CEP (regra 3)
 - [ ] Tela de entrada de estoque aceitando **várias variantes do mesmo produto numa submissão**
   (RF016) — P, M, G, GG de uma vez

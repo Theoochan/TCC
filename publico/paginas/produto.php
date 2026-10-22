@@ -14,6 +14,11 @@ if ($produto === null) {
 $titulo = $produto['nome'];
 $foto_pedida = $_GET['foto'] ?? null;
 
+//Visitante sem login: guarda esta página para voltar a ela depois de entrar
+if (! estaLogado()) {
+    lembrarPagina();
+}
+
 //cores disponíveis no produto selecionado
 $coresDisponiveis = Produto::coresDisponiveis($id);
 
@@ -132,31 +137,54 @@ require __DIR__ . '/../../incluir/topo.php';
 
         </div>
 
-        <!--Tamanho-->
-        <div class="mb-8">
-            <p class="rotulo text-xs uppercase tracking-[0.14em] mb-3">Tamanho</p>
-            
-            <div class="flex flex-wrap gap-2">
-                <?php foreach($variantes as $item): ?>
-                    <?php
-                    $disponivel = VarianteProduto::disponivel($item);
+        <!--Tamanho e sacola-->
+        <form method="post" action="/sacola/adicionar" class="mb-8">
+            <input type="hidden" name="token" value="<?= escapar(tokenCsrf()) ?>">
+            <input type="hidden" name="produto_id" value="<?= escapar($produto['id']) ?>">
+            <input type="hidden" name="cor_id" value="<?= escapar($cor['id']) ?>">
 
-                    if ($disponivel) {
-                        $estilo = 'border-[#0f1e3d] hover:bg-[#0f1e3d] hover:text-[#f4ecd8]';
-                        $atributo = '';
-                    }else{
-                        $estilo = 'border-[#0f1e3d]/25 text-[#0f1e3d]/35 line-through cursor-not-allowed';
-                        $atributo = 'disabled';
-                    }
-                    ?>
-                    <button type="button" 
-                            <?= $atributo ?>
-                            class="rotulo min-w-[3.25rem] px-3 py-2 border <?= $estilo ?>">
-                        <?= escapar($item['tamanho']) ?>
-                    </button>
-                <?php endforeach ?>
+            <p class="rotulo text-xs uppercase tracking-[0.14em] mb-3">Tamanho</p>
+
+            <!-- Cada tamanho é um rádio escondido (sr-only) e um <span> com cara
+                 de botão. peer marca o rádio; peer-checked: pinta o <span> quando
+                 ele está escolhido e peer-disabled: risca o esgotado (D-11).
+                 Tudo em CSS, sem JavaScript. -->
+            <div class="flex flex-wrap gap-2 mb-6">
+                <?php foreach ($variantes as $item): ?>
+                    <label>
+                        <input type="radio" name="variante_id" required
+                               value="<?= escapar($item['id']) ?>"
+                               class="peer sr-only"
+                               <?= VarianteProduto::disponivel($item) ? '' : 'disabled' ?>>
+                        <span class="rotulo inline-block min-w-[3.25rem] px-3 py-2 border border-[#0f1e3d] text-center cursor-pointer
+                                     peer-checked:bg-[#0f1e3d] peer-checked:text-[#f4ecd8]
+                                     peer-focus-visible:ring-2 peer-focus-visible:ring-[#a63a2a]
+                                     peer-disabled:border-[#0f1e3d]/25 peer-disabled:text-[#0f1e3d]/35
+                                     peer-disabled:line-through peer-disabled:cursor-not-allowed">
+                            <?= escapar($item['tamanho']) ?>
+                        </span>
+                    </label>
+                <?php endforeach; ?>
             </div>
-        </div>
+
+            <?php if (estaLogado()): ?>
+                <label class="flex items-center gap-3 mb-6">
+                    <span class="rotulo text-xs uppercase tracking-[0.14em]">Quantidade</span>
+                    <input type="number" name="qtde" value="1" min="1" required
+                           class="w-20 py-2 bg-transparent border-b border-[#0f1e3d] text-center focus:outline-none focus:border-[#a63a2a]">
+                </label>
+
+                <button type="submit"
+                        class="rotulo uppercase tracking-[0.16em] bg-[#0f1e3d] text-[#f4ecd8] px-6 py-4 w-full cursor-pointer hover:bg-[#a63a2a]">
+                    Adicionar à sacola
+                </button>
+            <?php else: ?>
+                <a href="/entrar"
+                   class="rotulo block text-center uppercase tracking-[0.16em] border border-[#0f1e3d] px-6 py-4 hover:bg-[#0f1e3d] hover:text-[#f4ecd8]">
+                    Entre para comprar
+                </a>
+            <?php endif; ?>
+        </form>
 
         <!--Atributos nullable-->       
         <div class="border-t border-[#0f1e3d]/20">

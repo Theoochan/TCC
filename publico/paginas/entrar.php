@@ -19,7 +19,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['nome']       = $usuario['nome'];
         $_SESSION['papel']      = $usuario['papel'];
 
-        redirecionar('/');
+        //Volta para onde estava antes do login, se houver; senão, a inicial
+        redirecionar(paginaLembrada());
     }
 
     $erro = 'E-mail ou senha inválidos.';

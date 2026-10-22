@@ -26,4 +26,5 @@ require __DIR__ . '/modelos/Cor.php';
 
 //Conta e apoio
 require __DIR__ . '/modelos/Usuario.php';
+require __DIR__ . '/modelos/CarrinhoItem.php';
 // require __DIR__ . '/modelos/FaixaFrete.php';

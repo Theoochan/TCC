@@ -52,6 +52,9 @@ $rotas = [
     '/sair' => 'paginas/sair.php',
     '/cadastro'  => 'paginas/cadastro.php',
     '/termos'    => 'paginas/termos.php',
+
+    // Sacola — toda rota /sacola exige login (verificação abaixo)
+    '/sacola/adicionar' => 'paginas/sacola/adicionar.php',
     // '/pedidos'   => 'paginas/pedidos.php',
 
     // Painel
@@ -77,6 +80,11 @@ if ($caminho != '/') {
 
 if (str_starts_with($caminho, '/admin')) {
     require __DIR__ . '/../incluir/protegido-admin.php';
+}
+
+// A sacola é da conta: sem login não há de quem ela seja (D-08, D-09)
+if (str_starts_with($caminho, '/sacola')) {
+    require __DIR__ . '/../incluir/protegido.php';
 }
 
 

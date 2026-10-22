@@ -309,7 +309,7 @@ abaixo como incorporados.
 ---
 
 ## D-09 — Carrinho é persistente e independente da venda
-**Pendência:** RQ-18 · **Data:** 2026-08-17
+**Pendência:** RQ-18 · **Data:** 2026-08-17 · **Revisto em:** 2026-10-19 (nota ao fim)
 
 **Contexto:** o RF003 vinculava o item do carrinho "à tabela de venda", o que faz do
 carrinho uma venda em estado inicial. Combinado com a expiração de D-01, isso destruiria
@@ -331,6 +331,18 @@ com unicidade em (usuário, variante), o que também impede duplicar a mesma var
   a depender de filtrar o status, cada carrinho abandonado consumiria um identificador de
   pedido (deixando lacunas na numeração), e uma "venda" que volta de estado contradiz a
   regra de histórico inalterável.
+- *Carrinho como venda em rascunho, com um estado intermediário reversível.* Variante da
+  anterior, que corrige o seu defeito principal: a venda nasce **aberta** (é o carrinho),
+  passa a **em checkout** ao finalizar, e, se o pagamento expira, **volta a aberta** — de
+  modo que a sacola sobrevive e o estado `expirado` nunca prende itens. Uma tabela de itens
+  a menos e nenhuma cópia no checkout. Descartada pelo que custa ao esquema: as oito colunas
+  que hoje são obrigatórias em todo pedido — destinatário, CEP, endereço, número, cidade, UF,
+  valor do frete e prazo da reserva — teriam de aceitar `NULL`, porque um carrinho não tem
+  nenhuma delas; o banco deixaria de garantir que um pedido pago tem endereço de entrega. A
+  imutabilidade do pedido passaria a depender de cada operação sobre itens conferir o estado
+  antes de alterar; o subtotal mudaria de sentido conforme o estado; e toda consulta de
+  venda precisaria excluir os carrinhos abertos. As garantias que hoje estão na estrutura
+  passariam a depender de `if`.
 
 **Consequências:**
 
@@ -345,15 +357,38 @@ com unicidade em (usuário, variante), o que também impede duplicar a mesma var
   aparece no modelo relacional — o que precisa estar dito, por ser a primeira coisa que se
   procura ao ler o diagrama.
 - **`carrinho_item` e `venda_item` são tabelas distintas**, ainda que de forma semelhante.
-  Unificá-las numa só, com um discriminador, exigiria duas chaves estrangeiras anuláveis e
-  mutuamente exclusivas — que o banco não consegue garantir —, uma coluna de subtotal
-  obrigatória para metade das linhas e proibida para a outra, restrições de unicidade
-  diferentes por tipo de linha, e um filtro em toda consulta de venda, sob pena de somar
-  carrinhos ao faturamento. Sobretudo, impediria expressar a diferença que motiva as duas
-  entidades: o carrinho acompanha o preço vigente do catálogo, o item de venda tem o preço
-  congelado. Forma repetida não é duplicação — duplicação é guardar o mesmo fato duas
-  vezes, e aqui os fatos são "este usuário quer isto" e "este pedido vendeu isto por este
-  preço".
+  **Forma repetida não é duplicação** — duplicação é guardar o mesmo fato duas vezes, e aqui
+  os fatos são "este usuário quer isto" e "este pedido vendeu isto por este preço". É a
+  diferença entre a lista de compras e o cupom fiscal: mesma forma, um muda o tempo todo e
+  é descartado, o outro é fixo e guardado para sempre. Unificá-las numa só tabela, com um
+  discriminador de tipo, custaria, do mais grave ao menos grave:
+  1. **Um filtro de tipo em toda consulta de venda**, sob pena de somar carrinhos ao
+     faturamento. Os cinco relatórios de D-17 dependeriam disso, e esquecer o filtro em um
+     deles não produz erro — produz um número maior, que parece certo.
+  2. **A imutabilidade do pedido passaria a depender do código.** Hoje `venda_item` não tem
+     nenhuma operação de alteração no sistema: ninguém precisa lembrar de não alterá-la.
+     Numa tabela compartilhada com o carrinho, cada operação sobre itens teria de conferir o
+     tipo antes de alterar.
+  3. **A regra do congelamento sumiria do modelo.** Hoje se lê no esquema que o item de venda
+     tem preço e o do carrinho não. Unificado, o subtotal seria obrigatório para metade das
+     linhas e sem sentido para a outra — a regra viraria um `NULL` dependente do tipo.
+  4. **Duas chaves estrangeiras anuláveis e mutuamente exclusivas** (usuário ou venda), com
+     restrições de unicidade diferentes por tipo de linha. A exclusividade seria expressável
+     por uma restrição `CHECK` — mas, segundo a documentação do MySQL 8, `CHECK` não é
+     permitido em coluna usada em ação referencial da chave estrangeira, e o carrinho usa
+     `ON DELETE CASCADE` sobre o usuário. Contornável, ao custo de abrir mão da exclusão em
+     cascata. É o argumento mais fraco dos quatro, e o único que depende do banco escolhido.
+
+  A síntese, que vale para as duas alternativas descartadas acima e para esta: **regra que a
+  estrutura garante não depende de ninguém lembrar.**
+
+**Nota de revisão (2026-10-19).** A decisão foi reexaminada ao iniciar a E4, diante da
+proposta de unificar carrinho e venda com um estado intermediário reversível, e mantida.
+Mudou o texto, não a decisão: (a) entrou como alternativa descartada a venda em rascunho
+com estado reversível; (b) foi corrigida a afirmação anterior de que a exclusividade entre
+as duas chaves estrangeiras "o banco não consegue garantir" — uma restrição `CHECK`
+conseguiria, com a ressalva sobre ações referenciais acima; (c) os custos da unificação
+foram ordenados por gravidade.
 
 ---
 
